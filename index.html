@@ -72,18 +72,23 @@
 /* === Hide top & bottom bubbles (no other changes) === */
 .flowchart{display:none !important;}
 .sticky-bar{display:none !important;}
+/* Mobile: alléger l'entête et les espacements */
+@media (max-width: 640px){
+  header{position:static;padding:6px 8px;background:none}
+  main{padding:8px 8px 12px}
+  .card{margin:8px 0;padding:10px}
+} 
+.fs-btn{
+  position:fixed;top:10px;right:10px;z-index:9999;
+  background:var(--accent);color:#fff;border:0;border-radius:999px;
+  padding:8px 12px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;
+}
+.fs-btn:hover{opacity:.9}
 </style>
 </head>
 <body>
 <header>
-<div class="flowchart">
-<span class="flow-step">Réception Mail</span><span class="flow-arrow">→</span>
-<span class="flow-step">Prise en compte JIRA</span><span class="flow-arrow">→</span>
-<span class="flow-step">Intervention Site</span><span class="flow-arrow">→</span>
-<span class="flow-step">Appel SIPPRO/CVU</span><span class="flow-arrow">→</span>
-<span class="flow-step">Saisie Fiche</span><span class="flow-arrow">→</span>
-<span class="flow-step">Ticket sur JIRA</span>
-</div>
+<a id="fsLink" class="fs-btn" href="#" target="_blank" rel="noopener">⤢ Plein écran</a>
 </header>
 <main>
 <div class="card" id="step-site">
@@ -523,5 +528,18 @@ qs('#startNetDiag').addEventListener('click',  () => startWizard('net'));
 qs('#startHwDiag').addEventListener('click',   () => startWizard('hw'));
 
 </script>
+<script>
+(function(){
+  var btn = document.getElementById('fsLink');
+  var url = 'https://fredericlacherade-ctrl.github.io/guide-camera/'; // ton URL directe
+  if (window.self !== window.top) { // embarqué (Google Sites)
+    btn.href = url;
+    btn.target = '_blank'; // ou '_top' si tu veux remplacer l’onglet
+  } else {
+    btn.style.display = 'none'; // déjà en plein écran → cacher le bouton
+  }
+})();
+</script>
+
 </body>
 </html>
