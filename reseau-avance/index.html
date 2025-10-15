@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Guide Réseau & Matériel — Avancé (assistant)</title>
+<style>
+  :root{--bg:#1e293b; --card:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --ok:#22c55e; --ko:#ef4444; --warn:#f59e0b; --line:#374151; --chip:#1f2937}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;scroll-padding-top:20px}
+  main{padding:12px 12px 96px; max-width:760px; margin:0 auto;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .status-dot{width:12px;height:12px;border-radius:999px;display:inline-block;background:var(--chip);border:1px solid var(--line)}
+  .dot-ok{background:var(--ok);border-color:var(--ok)} .dot-ko{background:var(--ko);border-color:var(--ko)} .dot-warn{background:var(--warn);border-color:var(--warn)}
+  button,.btn{appearance:none;border:1px solid var(--line);background:#0b1220;color:var(--fg);padding:12px 14px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;width:100%;text-align:center}
+  button:active{transform:scale(.98)}
+  .pill{flex:1;text-align:center;font-size:14px;padding:8px 10px}
+  .sticky-bar{position:fixed;bottom:10px;left:50%;right:auto;transform:translateX(-50%);width:min(100% - 20px, 760px);display:flex;gap:8px;background:rgba(2,6,23,.8);backdrop-filter:blur(6px);padding:10px;border:1px solid var(--line);border-radius:14px;z-index:60}
+  #wizard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+  #wizard-card{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;animation:fadein .2s ease}
+  #wizard-card h3{margin:0 0 10px;font-size:20px;color:var(--accent)}
+  #wizard-card p{margin:6px 0 16px;color:var(--fg);font-size:16px;min-height:40px}
+  #wizard-answers{display:flex;flex-direction:column;gap:10px}
+  #wizard-close{position:absolute;top:12px;right:12px}
+  .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);padding:10px;font-size:14px;margin:14px 0 0;border-radius:6px;color:var(--muted)}
+  details{border:1px dashed var(--line);border-radius:12px;padding:10px;margin:8px 0}
+  summary{cursor:pointer;font-weight:700}
+  .kbd{font-family:ui-monospace, Menlo, Consolas, monospace;background:#0a0f1c;border:1px solid var(--line);padding:2px 6px;border-radius:6px}
+  @keyframes fadein{from{opacity:0;transform:scale(.98)}}
+</style>
+</head>
+<body>
+<main>
+  <div class="card" id="step-reseau">
+    <h2><span class="status-dot" id="status-reseau"></span>1) Réseau — diagnostic avancé</h2>
+    <p style="color:var(--muted);margin:0 0 12px">Objectif : localiser précisément la panne (L1/L2/L3), identifier conflits et goulots, trouver les équipements sur le LAN.</p>
+    <button id="startNetDiag">🔎 Assistant guidé Réseau (avancé)</button>
+    <details>
+      <summary>Outils et commandes utiles</summary>
+      <ul>
+        <li>Windows : <span class="kbd">ipconfig /all</span>, <span class="kbd">ping -t IP</span>, <span class="kbd">arp -a</span>, <span class="kbd">tracert IP</span>, <span class="kbd">pathping IP</span>, <span class="kbd">netsh trace start capture=yes</span></li>
+        <li>Linux/macOS : <span class="kbd">ip a; ip r</span>, <span class="kbd">ping IP</span> (infini, <span class="kbd">Ctrl+C</span> pour arrêter), <span class="kbd">ip neigh</span>, <span class="kbd">traceroute IP</span>, <span class="kbd">tcpdump -i eth0 host IP</span></li>
+        <li>Découverte : <span class="kbd">nmap -sn 192.168.x.0/24</span> (si dispo) ou scan ARP ; LLDP côté switch ; outils type Advanced IP Scanner.</li>
+        <li>MTU : <span class="kbd">ping -f -l 1400 IP</span> (Win) | <span class="kbd">ping -M do -s 1400 IP</span> (Linux)</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="card" id="step-materiel">
+    <h2><span class="status-dot" id="status-materiel"></span>2) Matériel — tests & logs</h2>
+    <p style="color:var(--muted);margin:0 0 12px">Objectif : valider la caméra et ses liaisons (PoE/câble) et collecter des journaux utiles.</p>
+    <button id="startHwDiag">🔎 Assistant guidé Matériel (avancé)</button>
+    <details>
+      <summary>Outils et actions</summary>
+      <ul>
+        <li>Logs caméra : export syslog/diag via WebUI ou outil fabricant ; repérer erreurs réseau/RTSP.</li>
+        <li>PoE : vérifier classe/budget sur le port switch ; <span class="kbd">show power inline</span>, TDR : <span class="kbd">test cable-diagnostics tdr</span> (si supporté).</li>
+        <li>Flux : test VLC (RTSP), charge CPU/temp capteur si visible ; ping continu <span class="kbd">ping -t</span> pendant visualisation.</li>
+        <li>Remplacement croisé : injecteur/câble court/port différent pour isoler.</li>
+      </ul>
+    </details>
+  </div>
+</main>
+
+<nav class="sticky-bar">
+  <button class="pill" data-go="#step-reseau">Réseau</button>
+  <button class="pill" data-go="#step-materiel">Matériel</button>
+</nav>
+
+<div aria-live="polite" id="wizard-overlay">
+  <div id="wizard-card">
+    <button class="pill" id="wizard-close">Fermer ✕</button>
+    <h3 id="wizard-title">Assistant</h3>
+    <p id="wizard-text">…</p>
+    <div id="wizard-answers"></div>
+    <div id="wizard-tip-container"></div>
+  </div>
+</div>
+
+<script>
+const qs=(s,r=document)=>r.querySelector(s); const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+function setStatus(step,status){const dot=qs(`#status-${step}`); if(!dot) return; dot.className='status-dot'; if(status) dot.classList.add(`dot-${status}`);} 
+qsa('[data-go]').forEach(b=>b.addEventListener('click',()=>{const t=qs(b.getAttribute('data-go')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'});}));
+
+const flows = {
+  net_adv:{
+    start:{ title:'Réseau (avancé)', text:'Commencer par la couche physique : LEDs et lien ?', answers:[
+      {text:'Lien actif', next:'ipcfg'},
+      {text:'Pas de lien', conclusion:{status:'KO', message:'Câble/sertissage/port. Essayer câble court et autre port.'}}
+    ]},
+    ipcfg:{ text:'Adresse IP/Masque/Passerelle du PC de test corrects ?', tip:'Windows : ipconfig /all • Linux : ip a; ip r', answers:[
+      {text:'Oui', next:'pingt'},
+      {text:'Non', conclusion:{status:'KO', message:'Corriger l\'adressage (DHCP statique ? VLAN de la prise ?).'}}
+    ]},
+    pingt:{ text:'Ping continu vers la caméra (stabilité) ?', tip:'Windows : ping -t IP — Linux/mac : ping IP (Ctrl+C pour arrêter).', answers:[
+      {text:'Stable (0% perte)', next:'gw'},
+      {text:'Perte/latence instable', next:'tdr'}
+    ]},
+    tdr:{ text:'Tester le câble (TDR) ou câble court ?', tip:'Switch : test cable-diagnostics tdr ; ou câble court/injecteur.', answers:[
+      {text:'OK avec câble court', conclusion:{status:'WARN', message:'Problème de câblage/longueur/sertissage.'}},
+      {text:'Toujours instable', next:'arp_conflict'}
+    ]},
+    arp_conflict:{ text:'Conflit d\'IP suspect ? (device répond quand la caméra est débranchée)', tip:'Débrancher la caméra et ping l\'IP. Si réponse → conflit.', answers:[
+      {text:'Oui, conflit', conclusion:{status:'KO', message:'Changer IP de la caméra et mettre réservation DHCP si nécessaire.'}},
+      {text:'Non, pas de conflit', next:'path'}
+    ]},
+    path:{ text:'Chemin L3 vers le VMS/serveur (traceroute/pathping) ?', tip:'tracert / traceroute ; pathping pour perte par saut.', answers:[
+      {text:'Chemin OK', next:'mtu'},
+      {text:'Bloqué/timeout', conclusion:{status:'KO', message:'Filtrage ou routage. Vérifier firewall/NAT/VPN.'}}
+    ]},
+    mtu:{ text:'MTU/fragmentation correcte ?', tip:'Win: ping -f -l 1400 IP • Linux: ping -M do -s 1400 IP.', answers:[
+      {text:'OK (paquets passent)', next:'discover'},
+      {text:'KO (fragmentation)', conclusion:{status:'WARN', message:'Ajuster MTU (VPN/4G) ou désactiver DF côté tests.'}}
+    ]},
+    discover:{ text:'Localiser les équipements ?', tip:'Scan ARP ou nmap -sn 192.168.x.0/24 ; voir LLDP sur le switch.', answers:[
+      {text:'Équipement trouvé', conclusion:{status:'OK', message:'Adresse/MAC identifiés. Continuer tests ciblés.'}},
+      {text:'Non trouvé', conclusion:{status:'KO', message:'Hors sous-réseau/VLAN ou éteint. Vérifier VLAN/ACL.'}}
+    ]}
+  },
+  hw_adv:{
+    start:{ title:'Matériel (avancé)', text:'Accès Web ou RTSP possible ?', answers:[
+      {text:'Oui', next:'logs'},
+      {text:'Non', next:'poe_power'}
+    ]},
+    poe_power:{ text:'PoE : port fournit la puissance nécessaire ?', tip:'Switch : show power inline ; essayer port/injecteur différent.', answers:[
+      {text:'Puissance OK', next:'local_test'},
+      {text:'Puissance insuffisante', conclusion:{status:'KO', message:'Augmenter budget/classe PoE ou utiliser injecteur adapté.'}}
+    ]},
+    local_test:{ text:'Test en banc local (câble court + injecteur/switch de test) ?', answers:[
+      {text:'OK en local', conclusion:{status:'WARN', message:'Infra site en cause (câble/port/VLAN).'}},
+      {text:'Toujours KO', next:'reset_fw'}
+    ]},
+    reset_fw:{ text:'Reset usine + firmware stable appliqué ?', answers:[
+      {text:'Oui, toujours KO', conclusion:{status:'KO', message:'Défaut matériel probable → RMA/Remplacement.'}},
+      {text:'Pas encore', conclusion:{status:'WARN', message:'Effectuer reset propre puis reconfig minimale (IP/utilisateur/flux).'}}
+    ]},
+    logs:{ text:'Récupérer les logs de la caméra', tip:'Exporter syslog/diagnostic via WebUI ; relever erreurs réseau/RTSP/NTP.', answers:[
+      {text:'Logs récupérés', next:'ping_view'},
+      {text:'Impossible', next:'sniff'}
+    ]},
+    ping_view:{ text:'Pendant visualisation du flux, perte sur ping continu ?', tip:'Lancer ping -t pendant l\'aperçu vidéo pour corréler pertes.', answers:[
+      {text:'Pas de perte', conclusion:{status:'OK', message:'Matériel stable. Affiner codec/bitrate si nécessaire.'}},
+      {text:'Perte pendant flux', next:'sniff'}
+    ]},
+    sniff:{ text:'Capture réseau (miroir) ou PC de test ?', tip:'Port mirroring ou tcpdump/wireshark pour vérifier ARP/RTSP/TCP resets.', answers:[
+      {text:'Anomalies visibles', conclusion:{status:'WARN', message:'Analyser segments perdus, RST, retransmissions ; vérifier duplex/MTU.'}},
+      {text:'Rien d\'anormal', conclusion:{status:'OK', message:'Réseau/matériel OK ; chercher côté serveur/VMS.'}}
+    ]}
+  }
+};
+
+const overlay=qs('#wizard-overlay'); const title=qs('#wizard-title'); const text=qs('#wizard-text'); const answers=qs('#wizard-answers'); const tipC=qs('#wizard-tip-container');
+let currentFlowKey=null, currentFlow=null;
+function openWizard(flowKey){ currentFlowKey=flowKey; currentFlow=flows[flowKey]; if(!currentFlow) return; overlay.style.display='flex'; render('start'); }
+function render(step){ const s=currentFlow[step]; if(!s) return; title.textContent=s.title||'Assistant'; text.textContent=s.text||''; answers.innerHTML=''; tipC.innerHTML=s.tip?`<div class="wizard-tip">${s.tip}</div>`:''; (s.answers||[]).forEach(a=>{ const b=document.createElement('button'); b.textContent=a.text; b.className='pill'; b.onclick=()=>{ if(a.flow){ currentFlowKey=a.flow; currentFlow=flows[a.flow]; render(a.next); } else if(a.next){ render(a.next); } else if(a.conclusion){ conclude(a.conclusion); } }; answers.appendChild(b); }); if(s.conclusion) conclude(s.conclusion); }
+function conclude(c){ const map={net_adv:'reseau', hw_adv:'materiel'}; const key=map[currentFlowKey]||currentFlowKey; setStatus(key,(c.status||'').toLowerCase()); title.textContent=`Conclusion [${c.status}]`; text.textContent=c.message||''; answers.innerHTML=''; tipC.innerHTML=''; const b=document.createElement('button'); b.textContent='Terminer'; b.className='pill'; b.onclick=closeWizard; answers.appendChild(b); }
+function closeWizard(){ overlay.style.display='none'; }
+document.addEventListener('click',e=>{ if(e.target.id==='startNetDiag') openWizard('net_adv'); if(e.target.id==='startHwDiag') openWizard('hw_adv'); });
+</script>
+</body>
+</html>
