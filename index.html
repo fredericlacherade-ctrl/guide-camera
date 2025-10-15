@@ -2,544 +2,181 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Guide de Dépannage — Caméra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Guide de Dépannage — Caméra (Assistant guidé)</title>
 <style>
-    :root{
-      --bg:#1e6d67;/*slate-900*/
-      --card:#111827;/*gray-900*/
-      --fg:#e5e7eb;/*gray-200*/
-      --muted:#9ca3af;/*gray-400*/
-      --accent:#60a5fa;/*blue-400*/
-      --ok:#22c55e;/*green-500*/
-      --ko:#ef4444;/*red-500*/
-      --warn:#f59e0b;/*amber-500*/
-      --chip:#1f2937;/*gray-800*/
-      --line:#374151;/*gray-700*/
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,0));backdrop-filter:blur(6px);z-index:50;padding:12px 16px}
-    header h1{margin:0;font-size:19px}
-    header small{color:var(--muted)}
-    main{padding:12px 12px 96px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
-    .row{display:flex;gap:8px;flex-wrap:wrap}
-    button, .btn{
-      appearance:none;border:1px solid var(--line);background:#0b1220;color:var(--fg);
-      padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer
-    }
-    button:active{transform:scale(.98)}
-    .btn-chip{background:var(--chip);border:1px solid var(--line);font-size:13px;padding:6px 10px;border-radius:999px;color:var(--muted)}
-    .ok{border-color:#14532d;background:#052e16;color:#86efac}
-    .ko{border-color:#7f1d1d;background:#450a0a;color:#fca5a5}
-    .warn{border-color:#78350f;background:#451a03;color:#fde68a}
-    details{border:1px dashed var(--line);border-radius:12px;padding:10px;margin:8px 0}
-    details[open]{border-style:solid}
-    summary{cursor:pointer;font-weight:700;list-style:none}
-    summary::-webkit-details-marker{display:none}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .label{font-size:13px;color:var(--muted)}
-    input[type="text"],textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0b1220;color:var(--fg)}
-    textarea{min-height:72px}
-    .sticky-bar{
-      position:fixed;bottom:10px;left:10px;right:10px;display:flex;gap:8px;
-      background:rgba(2,6,23,.8);backdrop-filter:blur(6px);padding:10px;border:1px solid var(--line);border-radius:14px;z-index:60
-    }
-    .pill{flex:1;text-align:center}
-    .muted{color:var(--muted)}
-    .hidden{display:none}
-    #wizard-overlay.hidden { display: none; }
-    .step-badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#0b1220;border:1px solid var(--line);color:var(--muted)}
-    .status-dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
-    .dot-ok{background:var(--ok)} .dot-ko{background:var(--ko)} .dot-warn{background:var(--warn)}
-    .photo-preview{max-width:100%;border-radius:10px;border:1px solid var(--line);margin-top:8px}
-    .spacer{height:6px}
-    .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    /* Flowchart styles */
-    .flowchart{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:10px}
-    .flow-step{background:var(--accent);border:1px solid var(--accent);padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;color:var(--bg)}
-    .flow-arrow{color:var(--accent);font-weight:bold;}
-    /* Wizard overlay */
-    #wizard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
-    #wizard-card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;animation:fadein .25s ease}
-    #wizard-card h3{margin:0 0 10px;font-size:18px;color:var(--accent)}
-    #wizard-card p{margin:0 0 16px;color:var(--muted);min-height:40px}
-    #wizard-answers{display:flex;flex-direction:column;gap:8px}
-    #wizard-close{position:absolute;top:12px;right:12px}
-    @keyframes fadein{from{opacity:0;transform:scale(.97)}}
-  
-/* === Hide top & bottom bubbles (no other changes) === */
-.flowchart{display:none !important;}
-.sticky-bar{display:none !important;}
-/* Mobile: alléger l'entête et les espacements */
-@media (max-width: 640px){
-  header{position:static;padding:6px 8px;background:none}
-  main{padding:8px 8px 12px}
-  .card{margin:8px 0;padding:10px}
-} 
-.fs-btn{
-  position:fixed;top:10px;right:10px;z-index:9999;
-  background:var(--accent);color:#fff;border:0;border-radius:999px;
-  padding:8px 12px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;
-}
-.fs-btn:hover{opacity:.9}
+  :root{
+    --bg:#1e293b; --card:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa;
+    --ok:#22c55e; --ko:#ef4444; --warn:#f59e0b; --line:#374151; --chip:#1f2937;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;scroll-padding-top:20px}
+  main{padding:12px 12px 96px; max-width:760px; margin:0 auto;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .status-dot{width:12px;height:12px;border-radius:999px;display:inline-block;background:var(--chip);border:1px solid var(--line)}
+  .dot-ok{background:var(--ok);border-color:var(--ok)} .dot-ko{background:var(--ko);border-color:var(--ko)} .dot-warn{background:var(--warn);border-color:var(--warn)}
+  button,.btn{appearance:none;border:1px solid var(--line);background:#0b1220;color:var(--fg);padding:12px 14px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;width:100%;text-align:center}
+  button:active{transform:scale(.98)}
+  .pill{flex:1;text-align:center;font-size:14px;padding:8px 10px}
+  .sticky-bar{position:fixed;bottom:10px;left:50%;right:auto;transform:translateX(-50%);width:min(100% - 20px, 760px);display:flex;gap:8px;background:rgba(2,6,23,.8);backdrop-filter:blur(6px);padding:10px;border:1px solid var(--line);border-radius:14px;z-index:60}
+  #wizard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+  #wizard-card{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;animation:fadein .2s ease}
+  #wizard-card h3{margin:0 0 10px;font-size:20px;color:var(--accent)}
+  #wizard-card p{margin:6px 0 16px;color:var(--fg);font-size:16px;min-height:40px}
+  #wizard-answers{display:flex;flex-direction:column;gap:10px}
+  #wizard-close{position:absolute;top:12px;right:12px}
+  .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);padding:10px;font-size:14px;margin:14px 0 0;border-radius:6px;color:var(--muted)}
+  @keyframes fadein{from{opacity:0;transform:scale(.98)}}
+  .sticky-bar { display:none; }
+
 </style>
 </head>
 <body>
-<header>
-<a id="fsLink" class="fs-btn" href="#" target="_blank" rel="noopener">⤢ Plein écran</a>
-</header>
 <main>
-<div class="card" id="step-site">
-<div class="row" style="justify-content:space-between;align-items:center">
-<strong>Arrivée sur site</strong>
-</div>
-<div class="spacer"></div><ul><li>Inspection visuelle de l’équipement et de l’environnement immédiat.</li><li>Si l’accès n’est pas possible, s’il y a vandalisme ou autre anomalie : prendre des photos et les joindre à la fiche d’intervention.</li></ul></div>
-<div class="card" id="step-alim">
-<div class="row" style="justify-content:space-between;align-items:center">
-<strong>Diagnostic Alimentation</strong>
-<div class="row">
-<button class="pill" id="startAlimDiag">🔎 Assistant guidé</button>
-</div>
-</div>
-<div class="spacer"></div>
-<div class="grid2">
-<button class="pill ok" data-branch="alim-ok">Alim OK</button>
-<button class="pill ko" data-branch="alim-ko">Alim KO</button>
-</div>
-<details>
-<summary>Guidage rapide</summary>
-<ul>
-<li>Vérifier disjoncteur / parafoudre</li>
-<li>Mesure tension (230V / 12-24V / panneaux solaires)</li>
-<li>Câbles / connexions</li>
-</ul>
-</details>
-<div id="alim-branches"></div>
-</div>
-<div class="card" id="step-reseau">
-<div class="row" style="justify-content:space-between;align-items:center">
-<strong>Diagnostic Réseau</strong>
-<div class="row">
-<button class="pill" id="startNetDiag">🔎 Assistant guidé</button>
-</div>
-</div>
-<div class="spacer"></div>
-<div class="grid2">
-<button class="pill ok" data-branch="net-ok">Réseau OK</button>
-<button class="pill ko" data-branch="net-ko">Réseau KO</button>
-</div>
-<details>
-<summary>Guidage rapide</summary>
-<ul>
-<li>Ping / lien PoE / switch</li>
-<li>Adressage / VLAN</li>
-<li>Remise en lien</li>
-</ul>
-</details>
-<div id="net-branches"></div>
-</div>
-<div class="card" id="step-materiel">
-<div class="row" style="justify-content:space-between;align-items:center">
-<strong>Diagnostic Matériel</strong>
-<div class="row">
-<button class="pill" id="startHwDiag">🔎 Assistant guidé</button>
-</div>
-</div>
-<div class="spacer"></div>
-<div class="grid2">
-<button class="pill ok" data-branch="hw-ok">Matériel OK</button>
-<button class="pill ko" data-branch="hw-ko">Matériel KO</button>
-</div>
-<details>
-<summary>Guidage rapide</summary>
-<ul>
-<li>Test caméra / remplacement temporaire</li>
-<li>Firmware / reset si nécessaire</li>
-<li>Connectique / oxydation</li>
-</ul>
-</details>
-<div id="hw-branches"></div>
-</div>
+  <div class="card" id="step-alim">
+    <h2><span class="status-dot" id="status-alim"></span>1) Alimentation</h2>
+    <p style="color:var(--muted);margin:0 0 12px">But: confirmer si la caméra est bien alimentée. (AC/PoE/Solaire)</p>
+    <button id="startAlimDiag">🔎 Assistant guidé Alimentation</button>
+  </div>
+
+  <div class="card" id="step-reseau">
+    <h2><span class="status-dot" id="status-reseau"></span>2) Réseau</h2>
+    <p style="color:var(--muted);margin:0 0 12px">But: vérifier la communication minimale (tests simples).</p>
+    <button id="startNetDiag">🔎 Assistant guidé Réseau</button>
+  </div>
+
+  <div class="card" id="step-materiel">
+    <h2><span class="status-dot" id="status-materiel"></span>3) Caméra / Matériel</h2>
+    <p style="color:var(--muted);margin:0 0 12px">But: écarter une panne interne ou une mauvaise conf.</p>
+    <button id="startHwDiag">🔎 Assistant guidé Caméra</button>
+  </div>
 </main>
+
 <nav class="sticky-bar">
-<button class="pill" data-go="#step-site">Site</button>
-<button class="pill" data-go="#step-alim">Alim</button>
-<button class="pill" data-go="#step-reseau">Réseau</button>
-<button class="pill" data-go="#step-materiel">Matériel</button>
+  <button class="pill" data-go="#step-alim">Alim</button>
+  <button class="pill" data-go="#step-reseau">Réseau</button>
+  <button class="pill" data-go="#step-materiel">Caméra</button>
 </nav>
-<div aria-live="polite" class="hidden" id="wizard-overlay">
-<div id="wizard-card">
-<button class="btn-chip" id="wizard-close">Fermer ✕</button>
-<h3 id="wizard-title">Diagnostic Guidé</h3>
-<p id="wizard-text">Chargement…</p>
-<div id="wizard-answers"></div>
+
+<div aria-live="polite" id="wizard-overlay">
+  <div id="wizard-card">
+    <button class="pill" id="wizard-close">Fermer ✕</button>
+    <h3 id="wizard-title">Diagnostic guidé</h3>
+    <p id="wizard-text">…</p>
+    <div id="wizard-answers"></div>
+    <div id="wizard-tip-container"></div>
+  </div>
 </div>
-</div>
+
 <script>
-// ---------- Helpers ----------
-const qs  = (sel, root=document) => root.querySelector(sel);
-const qsa = (sel, root=document) => [...root.querySelectorAll(sel)];
-const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
-const load  = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d } };
+const qs = (s,r=document)=>r.querySelector(s); const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+function setStatus(step, status){ const dot=qs(`#status-${step}`); if(!dot) return; dot.className='status-dot'; if(status) dot.classList.add(`dot-${status}`); }
+qsa('[data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=qs(b.getAttribute('data-go')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
 
-// ---------- Checklist (tuto_) ----------
-const checklist = load('fusion_checklist', {});
-const checklistKeys = ['visuel','photos','resolu','devis'];
-const checklistRow = qs('#checklistRow');
-const percentEl = qs('#percent');
-
-function renderChecklist(){
-  if(!checklistRow || !percentEl){ return; }
-checklistRow.innerHTML = '';
-  let done = 0;
-  checklistKeys.forEach(k => {
-    const on = !!checklist[k];
-    if(on) done++;
-    const span = document.createElement('span');
-    span.className = 'btn-chip';
-    span.textContent = (on ? '✔ ' : '○ ') + k;
-    span.onclick = () => {
-      checklist[k] = !on;
-      store('fusion_checklist', checklist);
-      if (checklistRow && percentEl) renderChecklist();
-    };
-    checklistRow.appendChild(span);
-  });
-  const percent = Math.round((done / checklistKeys.length) * 100);
-  percentEl.textContent = percent + '% terminé';
-}
-if (checklistRow && percentEl) renderChecklist();
-
-qsa('[data-check]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const key = btn.getAttribute('data-check');
-    checklist[key] = !checklist[key];
-    store('fusion_checklist', checklist);
-    if (checklistRow && percentEl) renderChecklist();
-  });
-});
-
-// ---------- Navigation ----------
-qsa('[data-go]').forEach(el => el.addEventListener('click', e => {
-  const target = el.getAttribute('data-go');
-  const t = qs(target);
-  if(t){ t.scrollIntoView({behavior:'smooth', block:'start'}); }
-}));
-
-// ---------- Photo preview ----------
-const photoInput1 = qs('#photoInput1');
-const photoPreviewContainer1 = qs('#photoPreviewContainer1');
-if (photoInput1){
-  photoInput1.addEventListener('change', (e) => {
-    if (!photoPreviewContainer1) return;
-    photoPreviewContainer1.innerHTML = '';
-    [...e.target.files].forEach(file => {
-      const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
-      img.className = 'photo-preview';
-      photoPreviewContainer1.appendChild(img);
-    });
-  });
-}
-
-// ---------- Branching mini-guides (tuto_) ----------
-const branchTexts = {
-  'alim-ok': '<div class="muted">Alimentation OK → passer au diagnostic Réseau.</div>',
-  'alim-ko': '<ul><li>Vérifier disjoncteur (réarmement)</li><li>Mesurer 230V ou 12/24V</li><li>Tester câble / connectique</li><li>Si pack batterie HS → RMA ou Devis</li></ul>',
-  'net-ok' : '<div class="muted">Réseau OK → passer au diagnostic Matériel.</div>',
-  'net-ko' : '<ul><li>Vérifier PoE / lien</li><li>Adressage IP / VLAN</li><li>Switch / SFP / jarretière</li></ul>',
-  'hw-ok'  : '<div class="muted">Matériel OK → si toujours panne, revoir réseau/alimentation.</div>',
-  'hw-ko'  : '<ul><li>Tester avec caméra de secours</li><li>Reset / firmware</li><li>Oxydation / connecteurs</li><li>Si panne confirmée → RMA ou Devis</li></ul>'
-};
-function mountBranch(containerId, key){
-  const el = qs(containerId);
-  if(!el) return;
-  el.innerHTML = '<details open><summary>Chemin choisi</summary>' + branchTexts[key] + '</details>';
-}
-qsa('[data-branch]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const key = btn.getAttribute('data-branch');
-    if(key.startsWith('alim')) mountBranch('#alim-branches', key);
-    if(key.startsWith('net'))  mountBranch('#net-branches', key);
-    if(key.startsWith('hw'))   mountBranch('#hw-branches', key);
-  });
-});
-
-
-// ---------- Report export ----------
-const __exp = qs('#exportBtn'); if(__exp){ __exp.addEventListener('click', () => {
-  const lines = [];
-  const date = new Date().toLocaleString('fr-FR');
-  lines.push('Rapport de dépannage — ' + date);
-  lines.push('');
-  lines.push('Checklist:');
-  checklistKeys.forEach(k => lines.push(`- ${k}: ${checklist[k] ? 'OK' : 'NON'}`));
-  lines.push('');
-  lines.push('Journal assistant guidé:');
-  const log = load('fusion_reportLog', []);
-  log.forEach(l => lines.push(l));
-  lines.push('');
-  lines.push('Compte-rendu:');
-  lines.push(qs('#cr').value || '(vide)');
-  const text = lines.join('\n');
-  const pre = qs('#export');
-  pre.textContent = text;
-  pre.classList.remove('hidden');
-  const blob = new Blob([text], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'rapport_depannage.txt';
-  a.click();
-  URL.revokeObjectURL(url);
-}); }
-
-// =====================================================
-// ============== Wizard (Dep3 amélioré) ===============
-// =====================================================
-let fusion_reportLog = load('fusion_reportLog', []);
-function logStep(text) {
-  const timestamp = new Date().toLocaleTimeString('fr-FR');
-  fusion_reportLog.push(`${timestamp} - ${text}`);
-  store('fusion_reportLog', fusion_reportLog);
-}
-
-const diagSteps = {
-  alim_main: {
-    start: {
-      title: 'Alimentation',
-      text: 'Quel est le type d\'alimentation ?',
-      answers: [
-        { text: '230V', next: 'start', flow: 'alim_230v' },
-        { text: 'Batterie / EP', next: 'start', flow: 'alim_batt' },
-        { text: 'Panneaux Solaires', next: 'start', flow: 'alim_solar' }
-      ]
-    }
+const flows = {
+  alim_main:{
+    start:{ title:'Alimentation', text:'Type d\'alimentation ?', answers:[
+      {text:'Secteur (230V) / Transfo', flow:'alim_230', next:'start'},
+      {text:'PoE (Switch/Injecteur)', flow:'alim_poe', next:'start'},
+      {text:'Solaire / Batterie', flow:'alim_solar', next:'start'}
+    ]}
   },
-  alim_230v: {
-    start: {
-      title: 'Alim 230V',
-      text: 'Vérifier le disjoncteur électrique. Est-il enclenché ?',
-      answers: [
-        { text: 'Oui', next: 'tension_sortie' },
-        { text: 'Non', next: 'reenclencher' }
-      ]
-    },
-    reenclencher: {
-      text: 'Ré-enclencher le disjoncteur. Tient-il ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - Surcharge ponctuelle. Problème résolu.' },
-        { text: 'Non', conclusion: 'KO - Court-circuit sur la ligne ou l\'équipement.' }
-      ]
-    },
-    tension_sortie: {
-      text: 'Mesurer la tension en sortie du disjoncteur. Tension de 230V présente ?',
-      answers: [
-        { text: 'Oui', next: 'tension_equip' },
-        { text: 'Non', conclusion: 'KO - Problème en amont du disjoncteur (réseau).' }
-      ]
-    },
-    tension_equip: {
-      text: 'Tension présente sur l\'équipement ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - L\'alimentation est OK. Le problème n\'est pas électrique.' },
-        { text: 'Non', conclusion: 'KO - Problème sur le câble ou mauvaise connexion.' }
-      ]
-    }
+  alim_230:{
+    start:{ text:'Disjoncteur enclenché et stable ?', answers:[
+      {text:'Oui', next:'transfo_led'},
+      {text:'Non', conclusion:{status:'KO', message:'Réarmer. S\'il retombe → CC/surcharge.'}}
+    ]},
+    transfo_led:{ text:'Transfo 12/24 V : LED/allumé, tiède ?', answers:[
+      {text:'Oui', next:'mesure_sortie'},
+      {text:'Non', conclusion:{status:'KO', message:'Transfo HS ou non alimenté.'}}
+    ]},
+    mesure_sortie:{ text:'Mesure sortie transfo conforme (12/24 V, polarité OK) ?', answers:[
+      {text:'Oui', next:'mesure_cam'},
+      {text:'Non', conclusion:{status:'KO', message:'Sortie hors spec → remplacer.'}}
+    ]},
+    mesure_cam:{ text:'Tension aux bornes de la caméra toujours OK ?', answers:[
+      {text:'Oui', conclusion:{status:'OK', message:'Alim OK jusqu\'à la caméra.'}},
+      {text:'Non', conclusion:{status:'KO', message:'Chute de tension → câble/connectique.'}}
+    ]}
   },
-  alim_batt: {
-    start: {
-      title: 'Alim Batterie',
-      text: 'Mesurer la tension aux bornes de la batterie. Tension correcte (12V/24V) ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - L\'alimentation est OK. Le problème n\'est pas électrique.' },
-        { text: 'Non', next: 'disj' }
-      ]
-    },
-    disj: {
-      text: 'Vérifier Disjoncteur EP / Parafoudre. Quel est l\'état ?',
-      answers: [
-        { text: 'OK', next: 'rechange_dispo' },
-        { text: 'KO', conclusion: 'KO - Disjoncteur/Parafoudre à remplacer.' }
-      ]
-    },
-    rechange_dispo: {
-      text: 'Batterie de rechange disponible dans le véhicule ?',
-      answers: [
-        { text: 'Oui', next: 'remplacer' },
-        { text: 'Non', conclusion: 'KO - Prévoir nouvelle intervention (pas de batterie).' }
-      ]
-    },
-    remplacer: {
-      text: 'Remplacer par une batterie pleine. Le chargeur fonctionne bien ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - Problème résolu (batterie remplacée).' },
-        { text: 'Non', conclusion: 'KO - Problème du Pack, RMA à prévoir.' }
-      ]
-    }
+  alim_poe:{
+    start:{ text:'LED LINK & PoE sur le port ?', answers:[
+      {text:'Oui, fixes', conclusion:{status:'OK', message:'Injection OK. Passer au réseau.'}},
+      {text:'Non/clignote', next:'essai_cable_court'}
+    ]},
+    essai_cable_court:{ text:'Essai câble court et/ou autre port ?', answers:[
+      {text:'Oui → ça marche', conclusion:{status:'WARN', message:'Câble principal/longueur/sertissage en cause.'}},
+      {text:'Toujours KO', conclusion:{status:'KO', message:'Négociation PoE échoue ou caméra en défaut.'}}
+    ]}
   },
-  alim_solar: {
-    start: {
-      title: 'Alim Solaire',
-      text: 'Mesurer la tension aux bornes de la batterie. Tension correcte (~12V) ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - Le système solaire est OK.' },
-        { text: 'Non', next: 'panneaux' }
-      ]
-    },
-    panneaux: {
-      text: 'Vérifier la tension en sortie des panneaux (en plein soleil). Correcte (>17V) ?',
-      answers: [
-        { text: 'Oui', next: 'regulateur' },
-        { text: 'Non', conclusion: 'KO - Problème sur les panneaux (propreté, ombrage, panne).' }
-      ]
-    },
-    regulateur: {
-      text: 'Vérifier le régulateur de charge. Fonctionne-t-il correctement ?',
-      answers: [
-        { text: 'Oui', conclusion: 'KO - La batterie est HS et n\'accepte plus la charge.' },
-        { text: 'Non', conclusion: 'KO - Régulateur de charge défectueux. Remplacement nécessaire.' }
-      ]
-    }
+  alim_solar:{
+    start:{ text:'Batterie ≥ 12.2 V (12 V) / ≥ 24.4 V (24 V) ?', answers:[
+      {text:'Oui', next:'panneaux'},
+      {text:'Non', conclusion:{status:'KO', message:'Batterie faible/LVD.'}}
+    ]},
+    panneaux:{ text:'Plein soleil : 18–22 V (12 V) / 36–44 V (24 V) ?', answers:[
+      {text:'Oui', next:'regul'},
+      {text:'Non', conclusion:{status:'KO', message:'Panneaux sales/ombrage/câblage/fusible.'}}
+    ]},
+    regul:{ text:'Régulateur OK (voyants charge, sortie active) ?', answers:[
+      {text:'Oui', conclusion:{status:'OK', message:'Chaîne solaire OK.'}},
+      {text:'Non', conclusion:{status:'KO', message:'Régulateur défectueux/mauvais câblage.'}}
+    ]}
   },
-  net: {
-    start: {
-      title: 'Réseau',
-      text: 'Le lien réseau (Switch, PoE) est-il actif ?',
-      answers: [
-        { text: 'Oui', next: 'ping' },
-        { text: 'Non', conclusion: 'KO - Pas de lien physique. Vérifier câblage, switch, PoE.' }
-      ]
-    },
-    ping: {
-      text: 'La caméra répond-elle au ping ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - La connectivité réseau semble OK.' },
-        { text: 'Non', conclusion: 'KO - Problème de configuration IP, VLAN ou pare-feu.' }
-      ]
-    }
+  net:{
+    start:{ title:'Réseau', text:'LED de lien allumée ?', answers:[
+      {text:'Oui', next:'ping_cam'},
+      {text:'Non', conclusion:{status:'KO', message:'Pas de lien. Vérifier câble/port.'}}
+    ]},
+    ping_cam:{ text:'La caméra répond au ping depuis un PC du même réseau ?', answers:[
+      {text:'Oui', next:'ping_gw'},
+      {text:'Non', next:'conflit'}
+    ]},
+    conflit:{ text:'Débrancher la caméra puis re‑ping l\'IP. Réponse ?', answers:[
+      {text:'Oui', conclusion:{status:'KO', message:'Conflit d\'IP confirmé. Changer IP.'}},
+      {text:'Non', conclusion:{status:'WARN', message:'Pas de conflit. Essayer l\'accès Web.'}}
+    ]},
+    ping_gw:{ text:'Ping passerelle OK ?', answers:[
+      {text:'Oui', conclusion:{status:'OK', message:'Connectivité locale OK.'}},
+      {text:'Non', conclusion:{status:'KO', message:'Routage local/port/câble.'}}
+    ]}
   },
-  hw: {
-    start: {
-      title: 'Matériel',
-      text: 'Tester la caméra en local. Fonctionne-t-elle ?',
-      answers: [
-        { text: 'Oui', conclusion: 'OK - Le problème n\'est pas la caméra. Re-vérifier Alim/Réseau.' },
-        { text: 'Non', conclusion: 'KO - Problème sur la caméra, RMA ou devis à prévoir si le problème n\'est pas résolu suite à la réinitialisation.' }
-      ]
-    }
+  hw:{
+    start:{ title:'Caméra', text:'Accès Web (http/https://IP) ?', answers:[
+      {text:'Oui', next:'flux'},
+      {text:'Non', next:'reboot'}
+    ]},
+    reboot:{ text:'Reboot électrique tenté ?', answers:[
+      {text:'Oui, toujours KO', next:'test_local'},
+      {text:'Après reboot c\'est OK', conclusion:{status:'OK', message:'Plantage ponctuel. À surveiller.'}}
+    ]},
+    test_local:{ text:'Essai sur banc local (câble court/switch test) ?', answers:[
+      {text:'OK en local', conclusion:{status:'OK', message:'Cam OK → infra site en cause.'}},
+      {text:'Toujours KO', next:'reset'}
+    ]},
+    reset:{ text:'Reset usine effectué ?', answers:[
+      {text:'Oui, toujours KO', conclusion:{status:'KO', message:'Panne matérielle probable → RMA.'}},
+      {text:'Pas encore', conclusion:{status:'WARN', message:'Reset + config minimale (IP/utilisateur/flux).'}}
+    ]},
+    flux:{ text:'Flux vidéo visible ?', answers:[
+      {text:'Oui', conclusion:{status:'OK', message:'Caméra opérationnelle.'}},
+      {text:'Non', conclusion:{status:'WARN', message:'Service vidéo/firmware possiblement en cause.'}}
+    ]}
   }
 };
 
-const wizardOverlay = qs('#wizard-overlay');
-const wizardTitle = qs('#wizard-title');
-const wizardText  = qs('#wizard-text');
-const wizardAnswers = qs('#wizard-answers');
-const wizardClose = qs('#wizard-close');
-
-let currentFlow = null;
-let currentFlowKey = null;
-
-function startWizard(flowKey) {
-  currentFlowKey = flowKey;
-  currentFlow = diagSteps[flowKey];
-  if (!currentFlow || !currentFlow.start) {
-    console.error('Diagnostic flow not found or invalid:', flowKey);
-    return;
-  }
-  wizardTitle.textContent = currentFlow.start.title || 'Diagnostic';
-  wizardText.textContent = currentFlow.start.text || '...';
-  wizardAnswers.innerHTML = '';
-  wizardOverlay.classList.remove('hidden');
-  logStep(`DEBUT Diagnostic: ${wizardTitle.textContent}`);
-  setTimeout(() => renderStep('start'), 0);
+const overlay=qs('#wizard-overlay'); const title=qs('#wizard-title'); const text=qs('#wizard-text'); const answers=qs('#wizard-answers'); const tipC=qs('#wizard-tip-container');
+let currentFlowKey=null, currentFlow=null;
+function openWizard(flowKey){ currentFlowKey=flowKey; currentFlow=flows[flowKey]; if(!currentFlow) return; overlay.style.display='flex'; render('start'); }
+function render(step){ const s=currentFlow[step]; if(!s) return; title.textContent=s.title||currentFlow.start?.title||'Diagnostic'; text.textContent=s.text||''; answers.innerHTML=''; tipC.innerHTML=s.tip?`<div class="wizard-tip">${s.tip}</div>`:'';
+  (s.answers||[]).forEach(a=>{ const b=document.createElement('button'); b.textContent=a.text; b.className='pill'; b.onclick=()=>{ if(a.flow){ currentFlowKey=a.flow; currentFlow=flows[a.flow]; render(a.next); } else if(a.next){ render(a.next); } else if(a.conclusion){ conclude(a.conclusion); } }; answers.appendChild(b); });
+  if(s.conclusion) conclude(s.conclusion);
 }
-
-function renderStep(stepKey) {
-  const step = currentFlow[stepKey];
-  if (!step) {
-    console.error('Step not found:', stepKey, 'in', currentFlowKey);
-    wizardText.textContent = 'Étape introuvable.';
-    wizardAnswers.innerHTML = '<button class="pill" onclick="endWizard()">Fermer</button>';
-    return;
-  }
-  wizardTitle.textContent = step.title || currentFlow.start.title || 'Diagnostic';
-  wizardText.textContent  = step.text || step.conclusion || '';
-  wizardAnswers.innerHTML = '';
-
-  if (step.answers && step.answers.length) {
-    step.answers.forEach(answer => {
-      const btn = document.createElement('button');
-      btn.textContent = answer.text;
-      btn.className = 'pill';
-      btn.onclick = () => {
-        logStep(`${wizardText.textContent} -> ${answer.text}`);
-        if (answer.flow) {
-          currentFlowKey = answer.flow;
-          currentFlow = diagSteps[answer.flow];
-        }
-        if (answer.next) {
-            renderStep(answer.next);
-        } else if (answer.conclusion) {
-            renderConclusion(answer);
-        } else {
-            renderConclusion({ conclusion: 'Fin.' });
-        }
-      };
-      wizardAnswers.appendChild(btn);
-    });
-  } else if (step.conclusion) {
-    renderConclusion(step);
-  } else {
-    const btn = document.createElement('button');
-    btn.textContent = 'Continuer';
-    btn.className = 'pill';
-    btn.onclick = endWizard;
-    wizardAnswers.appendChild(btn);
-  }
-}
-
-function renderConclusion(step) {
-  wizardText.textContent = step.conclusion;
-  wizardAnswers.innerHTML = '';
-  const btn = document.createElement('button');
-  btn.textContent = 'Terminer';
-  btn.className = 'pill ok';
-  btn.onclick = () => {
-    logStep(`CONCLUSION: ${step.conclusion}`);
-    endWizard();
-  };
-  wizardAnswers.appendChild(btn);
-}
-
-function endWizard() {
-  wizardOverlay.classList.add('hidden');
-  currentFlow = null;
-  currentFlowKey = null;
-}
-
-wizardClose.addEventListener('click', endWizard);
-
-// Triggers
-qs('#startAlimDiag').addEventListener('click', () => startWizard('alim_main'));
-qs('#startNetDiag').addEventListener('click',  () => startWizard('net'));
-qs('#startHwDiag').addEventListener('click',   () => startWizard('hw'));
-
+function conclude(c){ const map={alim:'alim', net:'reseau', hw:'materiel'}; const key = map[currentFlowKey?.split('_')[0]] || currentFlowKey; setStatus(key, (c.status||'').toLowerCase()); title.textContent=`Conclusion [${c.status}]`; text.textContent=c.message||''; answers.innerHTML=''; tipC.innerHTML=''; const b=document.createElement('button'); b.textContent='Terminer'; b.className='pill'; b.onclick=closeWizard; answers.appendChild(b); }
+function closeWizard(){ overlay.style.display='none'; }
+document.addEventListener('click',e=>{ if(e.target.id==='startAlimDiag') openWizard('alim_main'); if(e.target.id==='startNetDiag') openWizard('net'); if(e.target.id==='startHwDiag') openWizard('hw'); });
+qsa('[data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=qs(b.getAttribute('data-go')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
 </script>
-<script>
-(function(){
-  var btn = document.getElementById('fsLink');
-  var url = 'https://fredericlacherade-ctrl.github.io/guide-camera/'; // ton URL directe
-  if (window.self !== window.top) { // embarqué (Google Sites)
-    btn.href = url;
-    btn.target = '_blank'; // ou '_top' si tu veux remplacer l’onglet
-  } else {
-    btn.style.display = 'none'; // déjà en plein écran → cacher le bouton
-  }
-})();
-</script>
-
 </body>
 </html>
