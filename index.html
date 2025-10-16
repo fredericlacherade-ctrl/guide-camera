@@ -25,7 +25,11 @@
   #wizard-card h3{margin:0 0 10px;font-size:20px;color:var(--accent)}
   #wizard-card p{margin:6px 0 16px;color:var(--fg);font-size:16px;min-height:40px}
   #wizard-answers{display:flex;flex-direction:column;gap:10px}
-  #wizard-close{position:absolute;top:12px;right:12px}
+  #wizard-close{
+  position:absolute;
+  top:12px;
+  width:auto;
+}
   .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);padding:10px;font-size:14px;margin:14px 0 0;border-radius:6px;color:var(--muted)}
   @keyframes fadein{from{opacity:0;transform:scale(.98)}}
   .sticky-bar { display:none; }
@@ -176,6 +180,7 @@ function render(step){ const s=currentFlow[step]; if(!s) return; title.textConte
 function conclude(c){ const map={alim:'alim', net:'reseau', hw:'materiel'}; const key = map[currentFlowKey?.split('_')[0]] || currentFlowKey; setStatus(key, (c.status||'').toLowerCase()); title.textContent=`Conclusion [${c.status}]`; text.textContent=c.message||''; answers.innerHTML=''; tipC.innerHTML=''; const b=document.createElement('button'); b.textContent='Terminer'; b.className='pill'; b.onclick=closeWizard; answers.appendChild(b); }
 function closeWizard(){ overlay.style.display='none'; }
 document.addEventListener('click',e=>{ if(e.target.id==='startAlimDiag') openWizard('alim_main'); if(e.target.id==='startNetDiag') openWizard('net'); if(e.target.id==='startHwDiag') openWizard('hw'); });
+qs('#wizard-close').addEventListener('click', closeWizard);
 qsa('[data-go]').forEach(b=>b.addEventListener('click',()=>{ const t=qs(b.getAttribute('data-go')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
 </script>
 </body>
