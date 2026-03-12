@@ -3,165 +3,353 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Guide Réseau & Matériel — Avancé (assistant)</title>
+<title>Guide Dépannage Caméra — Diagnostic guidé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#1e293b; --card:#0b1220; --fg:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --ok:#22c55e; --ko:#ef4444; --warn:#f59e0b; --line:#374151; --chip:#1f2937}
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;scroll-padding-top:20px}
-  main{padding:12px 12px 96px; max-width:760px; margin:0 auto;}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
-  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .status-dot{width:12px;height:12px;border-radius:999px;display:inline-block;background:var(--chip);border:1px solid var(--line)}
-  .dot-ok{background:var(--ok);border-color:var(--ok)} .dot-ko{background:var(--ko);border-color:var(--ko)} .dot-warn{background:var(--warn);border-color:var(--warn)}
-  button,.btn{appearance:none;border:1px solid var(--line);background:#0b1220;color:var(--fg);padding:12px 14px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;width:100%;text-align:center}
-  button:active{transform:scale(.98)}
-  .pill{flex:1;text-align:center;font-size:14px;padding:8px 10px}
-  .sticky-bar{position:fixed;bottom:10px;left:50%;right:auto;transform:translateX(-50%);width:min(100% - 20px, 760px);display:flex;gap:8px;background:rgba(2,6,23,.8);backdrop-filter:blur(6px);padding:10px;border:1px solid var(--line);border-radius:14px;z-index:60}
-  #wizard-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
-  #wizard-card{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;animation:fadein .2s ease}
-  #wizard-card h3{margin:0 0 10px;font-size:20px;color:var(--accent)}
-  #wizard-card p{margin:6px 0 16px;color:var(--fg);font-size:16px;min-height:40px}
-  #wizard-answers{display:flex;flex-direction:column;gap:10px}
-  #wizard-close{
-  width:auto; 
-}
-  .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);padding:10px;font-size:14px;margin:14px 0 0;border-radius:6px;color:var(--muted)}
-  details{border:1px dashed var(--line);border-radius:12px;padding:10px;margin:8px 0}
-  summary{cursor:pointer;font-weight:700}
-  .kbd{font-family:ui-monospace, Menlo, Consolas, monospace;background:#0a0f1c;border:1px solid var(--line);padding:2px 6px;border-radius:6px}
-  @keyframes fadein{from{opacity:0;transform:scale(.98)}}
-  .sticky-bar { display:none; }
+  :root{
+    --bg:#0c1a1a;--bg2:#0f2222;--card:#0a1e1e;--fg:#d8ece8;--fg-dim:#8aaba5;
+    --accent:#2d9e8e;--accent-light:#3ec4b0;--accent-glow:rgba(45,158,142,.15);
+    --teal-dark:#1d5b58;--teal-mid:#267a72;--teal-deep:#143d3b;
+    --ok:#34d399;--ko:#f87171;--warn:#fbbf24;
+    --line:#1e4a47;--line-subtle:#163635;--chip:#132e2d;
+    --radius:14px;
+    --font:'DM Sans',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:24px}
+  body{background:var(--bg);color:var(--fg);font-family:var(--font);min-height:100vh;overflow-x:hidden}
 
+  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:linear-gradient(135deg,rgba(29,91,88,.12) 0%,transparent 50%),linear-gradient(225deg,rgba(38,122,114,.08) 0%,transparent 40%),linear-gradient(315deg,rgba(29,91,88,.06) 0%,transparent 60%)}
+  .geo-pattern{position:fixed;top:0;right:0;width:420px;height:420px;z-index:0;pointer-events:none;opacity:.35}
+  .geo-pattern svg{width:100%;height:100%}
+
+  .header{position:relative;z-index:2;padding:28px 20px 20px;max-width:780px;margin:0 auto;
+    opacity:0;animation:fadeUp .5s .1s ease forwards}
+  .header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--chip);border:1px solid var(--line-subtle);
+    padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;color:var(--accent-light);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+  .header-badge::before{content:'';width:8px;height:8px;border-radius:99px;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse-dot 2s infinite}
+  .header h1{font-size:26px;font-weight:700;line-height:1.2;margin-bottom:6px}
+  .header p{color:var(--fg-dim);font-size:15px;line-height:1.5}
+
+  main{position:relative;z-index:2;padding:0 12px 120px;max-width:780px;margin:0 auto}
+
+  .card{background:linear-gradient(160deg,var(--card) 0%,var(--bg2) 100%);border:1px solid var(--line-subtle);
+    border-radius:var(--radius);padding:20px;margin:14px 0;position:relative;overflow:hidden;
+    transition:border-color .25s,box-shadow .25s,transform .25s;
+    opacity:0;animation:fadeUp .5s ease forwards}
+  .card:nth-child(1){animation-delay:.2s}.card:nth-child(2){animation-delay:.35s}.card:nth-child(3){animation-delay:.5s}
+  .card:hover{border-color:var(--line);box-shadow:0 4px 24px rgba(0,0,0,.3);transform:translateY(-2px)}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--teal-dark),var(--accent),var(--teal-dark));opacity:.6}
+  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-shrink:0;background:var(--accent-glow);border:1px solid var(--line);transition:transform .3s}
+  .card:hover .card-icon{transform:scale(1.08)}
+  .card-head h2{font-size:18px;font-weight:700;line-height:1.3}
+  .card-desc{color:var(--fg-dim);font-size:14px;line-height:1.5;margin-bottom:16px}
+
+  .status-dot{width:10px;height:10px;border-radius:999px;display:inline-block;
+    background:var(--chip);border:2px solid var(--line);vertical-align:middle;margin-left:6px;transition:all .3s}
+  .dot-ok{background:var(--ok);border-color:var(--ok);box-shadow:0 0 8px rgba(52,211,153,.4);animation:pulse-status .8s ease}
+  .dot-ko{background:var(--ko);border-color:var(--ko);box-shadow:0 0 8px rgba(248,113,113,.4);animation:pulse-status .8s ease}
+  .dot-warn{background:var(--warn);border-color:var(--warn);box-shadow:0 0 8px rgba(251,191,36,.4);animation:pulse-status .8s ease}
+
+  .btn-diag{appearance:none;border:1px solid var(--line);background:linear-gradient(135deg,var(--teal-deep),var(--card));
+    color:var(--accent-light);padding:14px 18px;border-radius:12px;font-family:var(--font);font-weight:600;font-size:15px;
+    cursor:pointer;width:100%;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;
+    transition:all .2s;letter-spacing:.3px;position:relative;overflow:hidden}
+  .btn-diag::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(62,196,176,.08) 100%);opacity:0;transition:opacity .2s}
+  .btn-diag:hover{background:linear-gradient(135deg,var(--teal-dark),var(--teal-deep));border-color:var(--accent);box-shadow:0 0 20px rgba(45,158,142,.2)}
+  .btn-diag:hover::after{opacity:1}
+  .btn-diag:active{transform:scale(.97)}
+  .btn-diag svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .sticky-bar{position:fixed;bottom:12px;left:12px;right:12px;max-width:780px;margin:0 auto;
+    display:flex;gap:6px;background:rgba(10,30,30,.88);backdrop-filter:blur(14px);
+    padding:8px;border:1px solid var(--line);border-radius:16px;z-index:60;
+    opacity:0;animation:fadeUp .4s .6s ease forwards}
+  .nav-pill{flex:1;appearance:none;border:1px solid transparent;background:transparent;
+    color:var(--fg-dim);font-family:var(--font);font-weight:600;font-size:13px;
+    padding:10px 8px;border-radius:10px;cursor:pointer;text-align:center;transition:all .2s}
+  .nav-pill:hover{color:var(--fg);background:var(--chip)}
+  .nav-pill.active{background:var(--teal-deep);color:var(--accent-light);border-color:var(--line)}
+
+  #wizard-overlay{position:fixed;inset:0;background:rgba(6,14,14,.88);backdrop-filter:blur(14px);
+    z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+  #wizard-card{width:100%;max-width:480px;background:linear-gradient(170deg,#0d2828 0%,#081818 100%);
+    border:1px solid var(--line);border-radius:18px;padding:24px 20px;
+    box-shadow:0 24px 64px rgba(0,0,0,.5);position:relative;overflow:hidden}
+  #wizard-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+
+  .wz-progress{height:3px;background:var(--chip);border-radius:2px;margin:0 0 16px;overflow:hidden}
+  .wz-progress-bar{height:100%;background:linear-gradient(90deg,var(--teal-dark),var(--accent-light));
+    border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:0%}
+
+  .wz-close{position:absolute;top:12px;right:12px;appearance:none;border:1px solid var(--line-subtle);
+    background:var(--chip);color:var(--fg-dim);width:36px;height:36px;border-radius:10px;
+    font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .wz-close:hover{color:var(--fg);border-color:var(--line);background:var(--teal-deep)}
+  #wizard-title{font-size:20px;font-weight:700;color:var(--accent-light);margin:0 0 4px;padding-right:40px}
+  .wz-step-indicator{font-size:11px;color:var(--fg-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+  #wizard-text{font-size:16px;color:var(--fg);line-height:1.5;margin:0 0 18px;min-height:40px}
+
+  .wz-body{transition:opacity .18s,transform .18s;opacity:1;transform:translateX(0)}
+  .wz-body.slide-out{opacity:0;transform:translateX(-16px)}
+  .wz-body.slide-in{opacity:0;transform:translateX(16px)}
+
+  #wizard-answers{display:flex;flex-direction:column;gap:10px}
+  #wizard-answers button{appearance:none;border:1px solid var(--line);
+    background:linear-gradient(135deg,var(--teal-deep),var(--card));
+    color:var(--fg);font-family:var(--font);font-weight:600;font-size:15px;
+    padding:14px 16px;border-radius:12px;cursor:pointer;text-align:left;
+    transition:all .2s;display:flex;align-items:center;gap:10px;
+    opacity:0;animation:fadeUp .3s ease forwards}
+  #wizard-answers button:nth-child(1){animation-delay:.05s}
+  #wizard-answers button:nth-child(2){animation-delay:.1s}
+  #wizard-answers button:nth-child(3){animation-delay:.15s}
+  #wizard-answers button:nth-child(4){animation-delay:.2s}
+  #wizard-answers button::before{content:'';width:8px;height:8px;border-radius:99px;flex-shrink:0;
+    border:2px solid var(--accent);transition:all .15s}
+  #wizard-answers button:hover{border-color:var(--accent);background:linear-gradient(135deg,var(--teal-dark),var(--teal-deep));box-shadow:0 0 16px var(--accent-glow)}
+  #wizard-answers button:hover::before{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+  #wizard-answers button:active{transform:scale(.98)}
+  #wizard-answers button.btn-conclude{text-align:center;justify-content:center;background:var(--accent);color:#081818;border-color:var(--accent)}
+  #wizard-answers button.btn-conclude::before{display:none}
+  #wizard-answers button.btn-conclude:hover{background:var(--accent-light);box-shadow:0 0 20px rgba(45,158,142,.3)}
+
+  .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);
+    padding:12px;font-size:13px;margin:16px 0 0;border-radius:0 8px 8px 0;
+    color:var(--fg-dim);line-height:1.5;opacity:0;animation:fadeUp .3s .15s ease forwards}
+  .wz-conclusion-badge{display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:12px;
+    animation:fadeUp .3s ease forwards}
+  .wz-conclusion-badge.st-ok{background:rgba(52,211,153,.15);color:var(--ok);border:1px solid rgba(52,211,153,.3)}
+  .wz-conclusion-badge.st-ko{background:rgba(248,113,113,.15);color:var(--ko);border:1px solid rgba(248,113,113,.3)}
+  .wz-conclusion-badge.st-warn{background:rgba(251,191,36,.15);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.5}}
+  @keyframes pulse-status{0%{transform:scale(1)}50%{transform:scale(1.8)}100%{transform:scale(1)}}
+  @media(max-width:480px){.header h1{font-size:22px}.card{padding:16px}#wizard-card{padding:20px 16px}}
 </style>
 </head>
 <body>
+<div class="geo-pattern" aria-hidden="true">
+<svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="0,0 140,0 70,120" fill="#1d5b58" opacity=".3"/>
+  <polygon points="140,0 280,0 210,120 70,120" fill="#174a48" opacity=".25"/>
+  <polygon points="280,0 420,0 350,120 210,120" fill="#1d5b58" opacity=".2"/>
+  <polygon points="350,120 420,0 420,240" fill="#143d3b" opacity=".3"/>
+  <polygon points="210,120 350,120 280,240 140,240" fill="#1a524f" opacity=".18"/>
+  <polygon points="70,120 210,120 140,240 0,240" fill="#163b39" opacity=".15"/>
+  <polygon points="0,240 140,240 70,360" fill="#1d5b58" opacity=".1"/>
+  <polygon points="140,240 280,240 210,360 70,360" fill="#143d3b" opacity=".12"/>
+  <polygon points="280,240 420,240 350,360 210,360" fill="#174a48" opacity=".15"/>
+  <polygon points="350,360 420,240 420,420 280,420" fill="#1d5b58" opacity=".08"/>
+</svg>
+</div>
+<div class="header">
+  <div class="header-badge">Diagnostic Caméra</div>
+  <h1>Guide de Dépannage</h1>
+  <p>Diagnostic guidé pas-à-pas — Alimentation, Réseau, Matériel</p>
+</div>
 <main>
-  <div class="card" id="step-reseau">
-    <h2><span class="status-dot" id="status-reseau"></span>1) Réseau — diagnostic avancé</h2>
-    <p style="color:var(--muted);margin:0 0 12px">Objectif : localiser précisément la panne (L1/L2/L3), identifier conflits et goulots, trouver les équipements sur le LAN.</p>
-    <button id="startNetDiag">🔎 Assistant guidé Réseau (avancé)</button>
-    <details>
-      <summary>Outils et commandes utiles</summary>
-      <ul>
-        <li>Windows : <span class="kbd">ipconfig /all</span>, <span class="kbd">ping -t IP</span>, <span class="kbd">arp -a</span>, <span class="kbd">tracert IP</span>, <span class="kbd">pathping IP</span>, <span class="kbd">netsh trace start capture=yes</span></li>
-        <li>Linux/macOS : <span class="kbd">ip a; ip r</span>, <span class="kbd">ping IP</span> (infini, <span class="kbd">Ctrl+C</span> pour arrêter), <span class="kbd">ip neigh</span>, <span class="kbd">traceroute IP</span>, <span class="kbd">tcpdump -i eth0 host IP</span></li>
-        <li>Découverte : <span class="kbd">nmap -sn 192.168.x.0/24</span> (si dispo) ou scan ARP ; LLDP côté switch ; outils type Advanced IP Scanner.</li>
-        <li>MTU : <span class="kbd">ping -f -l 1400 IP</span> (Win) | <span class="kbd">ping -M do -s 1400 IP</span> (Linux)</li>
-      </ul>
-    </details>
+  <div class="card" id="step-alim">
+    <div class="card-head"><div class="card-icon">⚡</div><h2>Alimentation <span class="status-dot" id="status-alim"></span></h2></div>
+    <p class="card-desc">Confirmer que la caméra est bien alimentée (secteur / PoE / solaire). Inclut vérification parafoudre, budget PoE, dimensionnement solaire.</p>
+    <button class="btn-diag" id="startAlimDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
   </div>
-
+  <div class="card" id="step-reseau">
+    <div class="card-head"><div class="card-icon">🌐</div><h2>Réseau <span class="status-dot" id="status-reseau"></span></h2></div>
+    <p class="card-desc">Vérifier lien, même sous-réseau, VLAN, conflits d'IP, connectivité vers le VMS.</p>
+    <button class="btn-diag" id="startNetDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
+  </div>
   <div class="card" id="step-materiel">
-    <h2><span class="status-dot" id="status-materiel"></span>2) Matériel — tests & logs</h2>
-    <p style="color:var(--muted);margin:0 0 12px">Objectif : valider la caméra et ses liaisons (PoE/câble) et collecter des journaux utiles.</p>
-    <button id="startHwDiag">🔎 Assistant guidé Matériel (avancé)</button>
-    <details>
-      <summary>Outils et actions</summary>
-      <ul>
-        <li>Logs caméra : export syslog/diag via WebUI ou outil fabricant ; repérer erreurs réseau/RTSP.</li>
-        <li>PoE : vérifier classe/budget sur le port switch ; <span class="kbd">show power inline</span>, TDR : <span class="kbd">test cable-diagnostics tdr</span> (si supporté).</li>
-        <li>Flux : test VLC (RTSP), charge CPU/temp capteur si visible ; ping continu <span class="kbd">ping -t</span> pendant visualisation.</li>
-        <li>Remplacement croisé : injecteur/câble court/port différent pour isoler.</li>
-      </ul>
-    </details>
+    <div class="card-head"><div class="card-icon">📷</div><h2>Caméra / Matériel <span class="status-dot" id="status-materiel"></span></h2></div>
+    <p class="card-desc">Firmware, date/heure NTP, flux vidéo, qualité d'image jour/nuit, IR.</p>
+    <button class="btn-diag" id="startHwDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
   </div>
 </main>
-
 <nav class="sticky-bar">
-  <button class="pill" data-go="#step-reseau">Réseau</button>
-  <button class="pill" data-go="#step-materiel">Matériel</button>
+  <button class="nav-pill active" data-go="#step-alim">⚡ Alim</button>
+  <button class="nav-pill" data-go="#step-reseau">🌐 Réseau</button>
+  <button class="nav-pill" data-go="#step-materiel">📷 Caméra</button>
 </nav>
-
 <div aria-live="polite" id="wizard-overlay">
   <div id="wizard-card">
-    <button class="pill" id="wizard-close">Fermer ✕</button>
-    <h3 id="wizard-title">Assistant</h3>
-    <p id="wizard-text">…</p>
-    <div id="wizard-answers"></div>
-    <div id="wizard-tip-container"></div>
+    <button class="wz-close" id="wizard-close" title="Fermer">✕</button>
+    <h3 id="wizard-title">Diagnostic guidé</h3>
+    <div class="wz-step-indicator" id="wizard-step"></div>
+    <div class="wz-progress"><div class="wz-progress-bar" id="wizard-progress"></div></div>
+    <div class="wz-body" id="wizard-body">
+      <p id="wizard-text">…</p>
+      <div id="wizard-answers"></div>
+      <div id="wizard-tip-container"></div>
+    </div>
   </div>
 </div>
-
 <script>
-const qs=(s,r=document)=>r.querySelector(s); const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
-function setStatus(step,status){const dot=qs(`#status-${step}`); if(!dot) return; dot.className='status-dot'; if(status) dot.classList.add(`dot-${status}`);} 
-qsa('[data-go]').forEach(b=>b.addEventListener('click',()=>{const t=qs(b.getAttribute('data-go')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'});}));
+const qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+function setStatus(k,s){const d=qs(`#status-${k}`);if(!d)return;d.className='status-dot';if(s)d.classList.add(`dot-${s}`);}
+qsa('[data-go]').forEach(b=>{b.addEventListener('click',()=>{qsa('.nav-pill').forEach(p=>p.classList.remove('active'));b.classList.add('active');const t=qs(b.getAttribute('data-go'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
 
-const flows = {
-  net_adv:{
-    start:{ title:'Réseau (avancé)', text:'Commencer par la couche physique : LEDs et lien ?', answers:[
-      {text:'Lien actif', next:'ipcfg'},
-      {text:'Pas de lien', conclusion:{status:'KO', message:'Câble/sertissage/port. Essayer câble court et autre port.'}}
-    ]},
-    ipcfg:{ text:'Adresse IP/Masque/Passerelle du PC de test corrects ?', tip:'Windows : ipconfig /all • Linux : ip a; ip r', answers:[
-      {text:'Oui', next:'pingt'},
-      {text:'Non', conclusion:{status:'KO', message:'Corriger l\'adressage (DHCP statique ? VLAN de la prise ?).'}}
-    ]},
-    pingt:{ text:'Ping continu vers la caméra (stabilité) ?', tip:'Windows : ping -t IP — Linux/mac : ping IP (Ctrl+C pour arrêter).', answers:[
-      {text:'Stable (0% perte)', next:'gw'},
-      {text:'Perte/latence instable', next:'tdr'}
-    ]},
-    tdr:{ text:'Tester le câble (TDR) ou câble court ?', tip:'Switch : test cable-diagnostics tdr ; ou câble court/injecteur.', answers:[
-      {text:'OK avec câble court', conclusion:{status:'WARN', message:'Problème de câblage/longueur/sertissage.'}},
-      {text:'Toujours instable', next:'arp_conflict'}
-    ]},
-    arp_conflict:{ text:'Conflit d\'IP suspect ? (device répond quand la caméra est débranchée)', tip:'Débrancher la caméra et ping l\'IP. Si réponse → conflit.', answers:[
-      {text:'Oui, conflit', conclusion:{status:'KO', message:'Changer IP de la caméra et mettre réservation DHCP si nécessaire.'}},
-      {text:'Non, pas de conflit', next:'path'}
-    ]},
-    path:{ text:'Chemin L3 vers le VMS/serveur (traceroute/pathping) ?', tip:'tracert / traceroute ; pathping pour perte par saut.', answers:[
-      {text:'Chemin OK', next:'mtu'},
-      {text:'Bloqué/timeout', conclusion:{status:'KO', message:'Filtrage ou routage. Vérifier firewall/NAT/VPN.'}}
-    ]},
-    mtu:{ text:'MTU/fragmentation correcte ?', tip:'Win: ping -f -l 1400 IP • Linux: ping -M do -s 1400 IP.', answers:[
-      {text:'OK (paquets passent)', next:'discover'},
-      {text:'KO (fragmentation)', conclusion:{status:'WARN', message:'Ajuster MTU (VPN/4G) ou désactiver DF côté tests.'}}
-    ]},
-    discover:{ text:'Localiser les équipements ?', tip:'Scan ARP ou nmap -sn 192.168.x.0/24 ; voir LLDP sur le switch.', answers:[
-      {text:'Équipement trouvé', conclusion:{status:'OK', message:'Adresse/MAC identifiés. Continuer tests ciblés.'}},
-      {text:'Non trouvé', conclusion:{status:'KO', message:'Hors sous-réseau/VLAN ou éteint. Vérifier VLAN/ACL.'}}
-    ]}
-  },
-  hw_adv:{
-    start:{ title:'Matériel (avancé)', text:'Accès Web ou RTSP possible ?', answers:[
-      {text:'Oui', next:'logs'},
-      {text:'Non', next:'poe_power'}
-    ]},
-    poe_power:{ text:'PoE : port fournit la puissance nécessaire ?', tip:'Switch : show power inline ; essayer port/injecteur différent.', answers:[
-      {text:'Puissance OK', next:'local_test'},
-      {text:'Puissance insuffisante', conclusion:{status:'KO', message:'Augmenter budget/classe PoE ou utiliser injecteur adapté.'}}
-    ]},
-    local_test:{ text:'Test en banc local (câble court + injecteur/switch de test) ?', answers:[
-      {text:'OK en local', conclusion:{status:'WARN', message:'Infra site en cause (câble/port/VLAN).'}},
-      {text:'Toujours KO', next:'reset_fw'}
-    ]},
-    reset_fw:{ text:'Reset usine + firmware stable appliqué ?', answers:[
-      {text:'Oui, toujours KO', conclusion:{status:'KO', message:'Défaut matériel probable → RMA/Remplacement.'}},
-      {text:'Pas encore', conclusion:{status:'WARN', message:'Effectuer reset propre puis reconfig minimale (IP/utilisateur/flux).'}}
-    ]},
-    logs:{ text:'Récupérer les logs de la caméra', tip:'Exporter syslog/diagnostic via WebUI ; relever erreurs réseau/RTSP/NTP.', answers:[
-      {text:'Logs récupérés', next:'ping_view'},
-      {text:'Impossible', next:'sniff'}
-    ]},
-    ping_view:{ text:'Pendant visualisation du flux, perte sur ping continu ?', tip:'Lancer ping -t pendant l\'aperçu vidéo pour corréler pertes.', answers:[
-      {text:'Pas de perte', conclusion:{status:'OK', message:'Matériel stable. Affiner codec/bitrate si nécessaire.'}},
-      {text:'Perte pendant flux', next:'sniff'}
-    ]},
-    sniff:{ text:'Capture réseau (miroir) ou PC de test ?', tip:'Port mirroring ou tcpdump/wireshark pour vérifier ARP/RTSP/TCP resets.', answers:[
-      {text:'Anomalies visibles', conclusion:{status:'WARN', message:'Analyser segments perdus, RST, retransmissions ; vérifier duplex/MTU.'}},
-      {text:'Rien d\'anormal', conclusion:{status:'OK', message:'Réseau/matériel OK ; chercher côté serveur/VMS.'}}
-    ]}
-  }
+const flows={
+  alim_main:{_t:5,start:{title:'Alimentation',text:'Quel type d\'alimentation ?',answers:[
+    {text:'Secteur (230 V) / Transfo',flow:'alim_230',next:'start'},
+    {text:'PoE (Switch / Injecteur)',flow:'alim_poe',next:'start'},
+    {text:'Solaire / Batterie',flow:'alim_solar',next:'start'},
+    {text:'Je ne sais pas',conclusion:{status:'WARN',message:'Identifier le type d\'alim avant de continuer. Vérifier l\'étiquette caméra (12 VDC / 24 VAC / PoE 48 V).'}}
+  ]}},
+  alim_230:{_t:5,start:{text:'Disjoncteur / fusible enclenché et stable ?',answers:[
+    {text:'Oui',next:'parafoudre'},
+    {text:'Non / se déclenche',conclusion:{status:'KO',message:'Réarmer. S\'il retombe → court-circuit ou surcharge. Vérifier parafoudre et câblage.'}}
+  ]},parafoudre:{text:'Parafoudre / parasurtenseur en amont ? Voyant OK ?',tip:'Un parafoudre grillé coupe l\'alim silencieusement.',answers:[
+    {text:'OK ou pas de parafoudre',next:'transfo_led'},
+    {text:'Parafoudre grillé',conclusion:{status:'KO',message:'Remplacer le parafoudre et vérifier le transfo en aval.'}}
+  ]},transfo_led:{text:'Transfo 12/24 V : LED allumée, boîtier tiède ?',answers:[
+    {text:'Oui',next:'mesure_sortie'},
+    {text:'Non (froid, éteint)',conclusion:{status:'KO',message:'Transfo HS ou non alimenté en amont.'}}
+  ]},mesure_sortie:{text:'Mesure sortie transfo conforme (12/24 V, polarité) ?',tip:'Multimètre sur la sortie. Tolérance ±10 %.',answers:[
+    {text:'Oui',next:'mesure_cam'},
+    {text:'Non',conclusion:{status:'KO',message:'Sortie hors spécifications → remplacer le transfo.'}}
+  ]},mesure_cam:{text:'Tension aux bornes de la caméra toujours OK ?',tip:'Mesurer sur le connecteur caméra. Chute > 1 V = problème.',answers:[
+    {text:'Oui',conclusion:{status:'OK',message:'Alimentation OK jusqu\'à la caméra.'}},
+    {text:'Non (chute)',conclusion:{status:'KO',message:'Chute de tension → câble trop long, section insuffisante, ou connectique oxydée.'}}
+  ]}},
+  alim_poe:{_t:4,start:{text:'LED LINK & PoE allumées sur le port ?',answers:[
+    {text:'Oui, fixes',next:'poe_classe'},
+    {text:'Non / clignote',next:'essai_cable_court'}
+  ]},poe_classe:{text:'Budget PoE du switch suffisant ? Classe PoE compatible ?',tip:'La caméra demande quelle classe (ex: 12.95 W class 3) vs budget restant du switch.',answers:[
+    {text:'Oui, budget OK',conclusion:{status:'OK',message:'Injection PoE OK. Passer au réseau.'}},
+    {text:'Budget dépassé / classe trop haute',conclusion:{status:'KO',message:'Budget PoE saturé → répartir les ports ou injecteur dédié.'}}
+  ]},essai_cable_court:{text:'Essai câble court (1-2 m) et/ou autre port ?',answers:[
+    {text:'OK avec câble court',conclusion:{status:'WARN',message:'Câble principal en cause : longueur, sertissage, ou paires endommagées.'}},
+    {text:'Toujours KO',next:'poe_injecteur'}
+  ]},poe_injecteur:{text:'Test avec un injecteur PoE externe indépendant ?',tip:'Isoler le switch : injecteur PoE séparé + câble court.',answers:[
+    {text:'OK avec injecteur',conclusion:{status:'KO',message:'Port switch défectueux ou PoE désactivé. Vérifier config switch.'}},
+    {text:'Toujours KO',conclusion:{status:'KO',message:'Probable défaut caméra (contrôleur PoE HS) → tester autre caméra ou RMA.'}}
+  ]}},
+  alim_solar:{_t:4,start:{text:'Batterie ≥ 12.2 V (12 V) / ≥ 24.4 V (24 V) ?',tip:'Mesurer à vide. < 11.5 V = décharge profonde.',answers:[
+    {text:'Oui',next:'panneaux'},
+    {text:'Non',conclusion:{status:'KO',message:'Batterie faible ou LVD activé. Recharger ou remplacer.'}}
+  ]},panneaux:{text:'Panneaux plein soleil : 18–22 V (12 V) / 36–44 V (24 V) ?',tip:'Mesurer en circuit ouvert.',answers:[
+    {text:'Oui',next:'regul'},
+    {text:'Non',conclusion:{status:'KO',message:'Panneaux sales / ombrage / fusible / diode anti-retour HS.'}}
+  ]},regul:{text:'Régulateur OK (voyants charge, sortie active) ?',answers:[
+    {text:'Oui',next:'conso'},
+    {text:'Non',conclusion:{status:'KO',message:'Régulateur défectueux → remplacer.'}}
+  ]},conso:{text:'Consommation caméra compatible avec la production solaire ?',tip:'Production journalière doit couvrir la conso 24h (incluant IR de nuit).',answers:[
+    {text:'Oui',conclusion:{status:'OK',message:'Chaîne solaire OK.'}},
+    {text:'Sous-dimensionné',conclusion:{status:'WARN',message:'Ajouter panneau ou réduire conso (couper IR, baisser FPS la nuit).'}}
+  ]}},
+
+  net:{_t:7,start:{title:'Réseau',text:'LED de lien allumée sur le port switch ?',answers:[
+    {text:'Oui',next:'same_subnet'},
+    {text:'Non',conclusion:{status:'KO',message:'Pas de lien physique. Vérifier câble / port / alimentation caméra.'}}
+  ]},same_subnet:{text:'Le PC de test est sur le même sous-réseau que la caméra ?',tip:'Ex: caméra 192.168.1.50/24 → PC en 192.168.1.x/24.',answers:[
+    {text:'Oui',next:'ping_cam'},
+    {text:'Non / pas sûr',conclusion:{status:'WARN',message:'Mettre le PC dans le même sous-réseau (IP fixe temporaire) puis retenter.'}}
+  ]},ping_cam:{text:'La caméra répond au ping ?',answers:[
+    {text:'Oui',next:'ping_gw'},
+    {text:'Non',next:'vlan_check'}
+  ]},vlan_check:{text:'La prise réseau est sur le bon VLAN ?',tip:'Vérifier côté switch : port dans le VLAN caméra.',answers:[
+    {text:'Oui / pas de VLAN',next:'conflit'},
+    {text:'Mauvais VLAN',conclusion:{status:'KO',message:'Port dans le mauvais VLAN. Reconfigurer le port switch.'}},
+    {text:'Je ne sais pas',next:'conflit'}
+  ]},conflit:{text:'Débrancher la caméra, ping son IP. Réponse ?',tip:'Si une autre machine répond → conflit d\'IP.',answers:[
+    {text:'Oui → conflit',conclusion:{status:'KO',message:'Conflit d\'IP confirmé. Changer l\'IP ou identifier le doublon.'}},
+    {text:'Non (timeout)',conclusion:{status:'WARN',message:'Pas de conflit. Vérifier l\'IP de la caméra (reset ?) ou accès Web direct.'}}
+  ]},ping_gw:{text:'Ping de la passerelle OK ?',answers:[
+    {text:'Oui',next:'ping_vms'},
+    {text:'Non',conclusion:{status:'KO',message:'Pas de connectivité vers la passerelle.'}}
+  ]},ping_vms:{text:'Ping vers le VMS / serveur OK ?',tip:'Depuis le PC dans le même réseau.',answers:[
+    {text:'Oui',conclusion:{status:'OK',message:'Connectivité réseau OK jusqu\'au VMS.'}},
+    {text:'Non',conclusion:{status:'KO',message:'Routage inter-VLAN ou firewall bloque le trafic vers le VMS.'}}
+  ]}},
+
+  hw:{_t:7,start:{title:'Caméra / Matériel',text:'Accès Web (http://IP) possible ?',answers:[
+    {text:'Oui',next:'fw_check'},
+    {text:'Non',next:'reboot'}
+  ]},reboot:{text:'Reboot électrique tenté (couper 30 sec) ?',answers:[
+    {text:'Oui, toujours KO',next:'test_local'},
+    {text:'OK après reboot',conclusion:{status:'OK',message:'Plantage ponctuel. Si récurrent → vérifier firmware et alim.'}}
+  ]},test_local:{text:'Essai en banc local (câble court + switch test) ?',answers:[
+    {text:'OK en local',conclusion:{status:'WARN',message:'Caméra OK → infra site en cause (câble, port, VLAN, alim).'}},
+    {text:'Toujours KO',next:'reset'}
+  ]},reset:{text:'Reset usine (bouton 10-15 sec) ?',tip:'Après reset : IP par défaut constructeur, identifiants usine.',answers:[
+    {text:'Oui, toujours KO',conclusion:{status:'KO',message:'Panne matérielle probable → RMA / remplacement.'}},
+    {text:'Pas encore',conclusion:{status:'WARN',message:'Effectuer reset usine puis reconfigurer : IP, utilisateur, flux.'}}
+  ]},fw_check:{text:'Firmware à jour (version stable connue) ?',tip:'Comparer dans l\'interface Web avec le site constructeur.',answers:[
+    {text:'Oui',next:'ntp_check'},
+    {text:'Non / ancienne',conclusion:{status:'WARN',message:'Mettre à jour le firmware (version stable). Bugs souvent corrigés.'}},
+    {text:'Je ne sais pas',next:'ntp_check'}
+  ]},ntp_check:{text:'Date et heure correctes (NTP synchronisé) ?',tip:'Un décalage empêche l\'enregistrement horodaté sur le VMS.',answers:[
+    {text:'Oui',next:'flux'},
+    {text:'Non / décalée',conclusion:{status:'WARN',message:'Configurer NTP (pool.ntp.org ou serveur local). Vérifier fuseau horaire.'}}
+  ]},flux:{text:'Flux vidéo visible dans l\'interface Web ?',answers:[
+    {text:'Oui',next:'image_quality'},
+    {text:'Écran noir',conclusion:{status:'WARN',message:'Service RTSP/vidéo HS. Reboot, sinon reset firmware ou RMA.'}}
+  ]},image_quality:{text:'Qualité d\'image correcte (jour ET nuit) ?',tip:'Vérifier : focus, IR en auto, pas de reflet IR, pas de masquage.',answers:[
+    {text:'Oui',conclusion:{status:'OK',message:'Caméra opérationnelle. Vérifier intégration VMS si besoin.'}},
+    {text:'Floue / surexposée',conclusion:{status:'WARN',message:'Régler focus, exposition, WDR, gain. Si IR : vérifier surfaces réfléchissantes.'}},
+    {text:'IR ne fonctionne pas',conclusion:{status:'WARN',message:'Vérifier mode jour/nuit auto, seuil IR, état physique des LEDs IR.'}}
+  ]}}
 };
 
-const overlay=qs('#wizard-overlay'); const title=qs('#wizard-title'); const text=qs('#wizard-text'); const answers=qs('#wizard-answers'); const tipC=qs('#wizard-tip-container');
-let currentFlowKey=null, currentFlow=null;
-function openWizard(flowKey){ currentFlowKey=flowKey; currentFlow=flows[flowKey]; if(!currentFlow) return; overlay.style.display='flex'; render('start'); }
-function render(step){ const s=currentFlow[step]; if(!s) return; title.textContent=s.title||'Assistant'; text.textContent=s.text||''; answers.innerHTML=''; tipC.innerHTML=s.tip?`<div class="wizard-tip">${s.tip}</div>`:''; (s.answers||[]).forEach(a=>{ const b=document.createElement('button'); b.textContent=a.text; b.className='pill'; b.onclick=()=>{ if(a.flow){ currentFlowKey=a.flow; currentFlow=flows[a.flow]; render(a.next); } else if(a.next){ render(a.next); } else if(a.conclusion){ conclude(a.conclusion); } }; answers.appendChild(b); }); if(s.conclusion) conclude(s.conclusion); }
-function conclude(c){ const map={net_adv:'reseau', hw_adv:'materiel'}; const key=map[currentFlowKey]||currentFlowKey; setStatus(key,(c.status||'').toLowerCase()); title.textContent=`Conclusion [${c.status}]`; text.textContent=c.message||''; answers.innerHTML=''; tipC.innerHTML=''; const b=document.createElement('button'); b.textContent='Terminer'; b.className='pill'; b.onclick=closeWizard; answers.appendChild(b); }
-function closeWizard(){ overlay.style.display='none'; }
-document.addEventListener('click',e=>{ if(e.target.id==='startNetDiag') openWizard('net_adv'); if(e.target.id==='startHwDiag') openWizard('hw_adv'); });
-qs('#wizard-close').addEventListener('click', closeWizard);
+const overlay=qs('#wizard-overlay'),wTitle=qs('#wizard-title'),wStep=qs('#wizard-step'),
+  wText=qs('#wizard-text'),wAnswers=qs('#wizard-answers'),wTipC=qs('#wizard-tip-container'),
+  wBody=qs('#wizard-body'),wProgress=qs('#wizard-progress');
+let curFK=null,curF=null,stepN=0,totS=5;
+
+function openWizard(fk){curFK=fk;curF=flows[fk];if(!curF)return;stepN=0;totS=curF._t||5;
+  overlay.style.display='flex';
+  overlay.animate([{opacity:0},{opacity:1}],{duration:200,easing:'ease'});
+  qs('#wizard-card').animate([{opacity:0,transform:'translateY(16px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:250,easing:'ease'});
+  render('start');}
+
+function animateStep(cb){wBody.classList.add('slide-out');setTimeout(()=>{cb();wBody.classList.remove('slide-out');wBody.classList.add('slide-in');requestAnimationFrame(()=>{requestAnimationFrame(()=>{wBody.classList.remove('slide-in');});});},160);}
+
+function render(step){const s=curF[step];if(!s)return;stepN++;
+  wTitle.textContent=s.title||curF.start?.title||'Diagnostic';
+  wStep.textContent=`Étape ${stepN}`;
+  wProgress.style.width=Math.min((stepN/totS)*100,100)+'%';
+  wText.textContent=s.text||'';wAnswers.innerHTML='';
+  wTipC.innerHTML=s.tip?`<div class="wizard-tip">💡 ${s.tip}</div>`:'';
+  (s.answers||[]).forEach(a=>{const b=document.createElement('button');b.textContent=a.text;
+    b.onclick=()=>{
+      if(a.flow){curFK=a.flow;curF=flows[a.flow];totS=curF._t||5;}
+      if(a.conclusion)animateStep(()=>conclude(a.conclusion));
+      else if(a.next)animateStep(()=>render(a.next));
+    };wAnswers.appendChild(b);});
+  if(s.conclusion)conclude(s.conclusion);}
+
+function conclude(c){
+  const map={alim:'alim',alim_main:'alim',alim_230:'alim',alim_poe:'alim',alim_solar:'alim',net:'reseau',hw:'materiel'};
+  const k=map[curFK]||curFK,st=(c.status||'').toLowerCase();setStatus(k,st);
+  wProgress.style.width='100%';
+  const lab={ok:'OK',ko:'ÉCHEC',warn:'ATTENTION'};
+  wTitle.textContent='Conclusion';wStep.textContent='';
+  const badge=document.createElement('div');badge.className=`wz-conclusion-badge st-${st}`;
+  badge.innerHTML=`● ${lab[st]||c.status}`;
+  wText.textContent=c.message||'';wText.parentNode.insertBefore(badge,wText);
+  wAnswers.innerHTML='';wTipC.innerHTML='';
+  const b=document.createElement('button');b.textContent='Terminer';b.className='btn-conclude';b.onclick=closeWizard;
+  wAnswers.appendChild(b);}
+
+function closeWizard(){overlay.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease'}).onfinish=()=>{
+  overlay.style.display='none';qs('#wizard-card').querySelectorAll('.wz-conclusion-badge').forEach(e=>e.remove());wProgress.style.width='0%';};}
+
+qs('#wizard-close').addEventListener('click',closeWizard);
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeWizard()});
+document.addEventListener('click',e=>{
+  if(e.target.id==='startAlimDiag'||e.target.closest('#startAlimDiag'))openWizard('alim_main');
+  if(e.target.id==='startNetDiag'||e.target.closest('#startNetDiag'))openWizard('net');
+  if(e.target.id==='startHwDiag'||e.target.closest('#startHwDiag'))openWizard('hw');
+});
 </script>
 </body>
 </html>
