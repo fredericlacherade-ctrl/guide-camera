@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Guide Dépannage Caméra — Diagnostic guidé</title>
+<title>Guide Réseau & Matériel — Diagnostic Avancé</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -40,7 +40,7 @@
     border-radius:var(--radius);padding:20px;margin:14px 0;position:relative;overflow:hidden;
     transition:border-color .25s,box-shadow .25s,transform .25s;
     opacity:0;animation:fadeUp .5s ease forwards}
-  .card:nth-child(1){animation-delay:.2s}.card:nth-child(2){animation-delay:.35s}.card:nth-child(3){animation-delay:.5s}
+  .card:nth-child(1){animation-delay:.2s}.card:nth-child(2){animation-delay:.35s}
   .card:hover{border-color:var(--line);box-shadow:0 4px 24px rgba(0,0,0,.3);transform:translateY(-2px)}
   .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
     background:linear-gradient(90deg,var(--teal-dark),var(--accent),var(--teal-dark));opacity:.6}
@@ -67,10 +67,21 @@
   .btn-diag:active{transform:scale(.97)}
   .btn-diag svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
+  details{border:1px solid var(--line-subtle);border-radius:12px;padding:0;margin:12px 0 0;overflow:hidden;background:var(--bg2)}
+  summary{cursor:pointer;font-weight:600;font-size:14px;padding:12px 16px;color:var(--accent-light);
+    list-style:none;display:flex;align-items:center;gap:8px;transition:background .15s}
+  summary:hover{background:var(--chip)}
+  summary::before{content:'▸';font-size:12px;transition:transform .2s}
+  details[open] summary::before{transform:rotate(90deg)}
+  details ul{padding:8px 16px 14px 32px;margin:0;border-top:1px solid var(--line-subtle)}
+  details li{font-size:13px;color:var(--fg-dim);line-height:1.6;margin:4px 0}
+  .kbd{font-family:var(--mono);font-size:12px;background:#0a1515;border:1px solid var(--line);
+    padding:2px 7px;border-radius:6px;color:var(--accent-light);white-space:nowrap}
+
   .sticky-bar{position:fixed;bottom:12px;left:12px;right:12px;max-width:780px;margin:0 auto;
     display:flex;gap:6px;background:rgba(10,30,30,.88);backdrop-filter:blur(14px);
     padding:8px;border:1px solid var(--line);border-radius:16px;z-index:60;
-    opacity:0;animation:fadeUp .4s .6s ease forwards}
+    opacity:0;animation:fadeUp .4s .5s ease forwards}
   .nav-pill{flex:1;appearance:none;border:1px solid transparent;background:transparent;
     color:var(--fg-dim);font-family:var(--font);font-weight:600;font-size:13px;
     padding:10px 8px;border-radius:10px;cursor:pointer;text-align:center;transition:all .2s}
@@ -123,7 +134,8 @@
 
   .wizard-tip{background:var(--chip);border-left:3px solid var(--accent);
     padding:12px;font-size:13px;margin:16px 0 0;border-radius:0 8px 8px 0;
-    color:var(--fg-dim);line-height:1.5;opacity:0;animation:fadeUp .3s .15s ease forwards}
+    color:var(--fg-dim);line-height:1.5;font-family:var(--mono);
+    opacity:0;animation:fadeUp .3s .15s ease forwards}
   .wz-conclusion-badge{display:inline-flex;align-items:center;gap:6px;
     padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:12px;
     animation:fadeUp .3s ease forwards}
@@ -153,36 +165,53 @@
 </svg>
 </div>
 <div class="header">
-  <div class="header-badge">Diagnostic Caméra</div>
-  <h1>Guide de Dépannage</h1>
-  <p>Diagnostic guidé pas-à-pas — Alimentation, Réseau, Matériel</p>
+  <div class="header-badge">Diagnostic Avancé</div>
+  <h1>Réseau & Matériel</h1>
+  <p>Diagnostic approfondi — L1/L2/L3, duplex, VLAN, PoE, ONVIF, capture réseau, logs</p>
 </div>
 <main>
-  <div class="card" id="step-alim">
-    <div class="card-head"><div class="card-icon">⚡</div><h2>Alimentation <span class="status-dot" id="status-alim"></span></h2></div>
-    <p class="card-desc">Confirmer que la caméra est bien alimentée (secteur / PoE / solaire). Inclut vérification parafoudre, budget PoE, dimensionnement solaire.</p>
-    <button class="btn-diag" id="startAlimDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
-  </div>
   <div class="card" id="step-reseau">
-    <div class="card-head"><div class="card-icon">🌐</div><h2>Réseau <span class="status-dot" id="status-reseau"></span></h2></div>
-    <p class="card-desc">Vérifier lien, même sous-réseau, VLAN, conflits d'IP, connectivité vers le VMS.</p>
-    <button class="btn-diag" id="startNetDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
+    <div class="card-head"><div class="card-icon">🔬</div><h2>Réseau — diagnostic avancé <span class="status-dot" id="status-reseau"></span></h2></div>
+    <p class="card-desc">Couche physique, adressage, stabilité ping, TDR câble, conflits ARP, VLAN tagging, duplex, MTU, débit, DNS, découverte LAN.</p>
+    <button class="btn-diag" id="startNetDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic avancé</button>
+    <details>
+      <summary>Outils et commandes utiles</summary>
+      <ul>
+        <li><strong>Windows :</strong> <span class="kbd">ipconfig /all</span> · <span class="kbd">ping -t IP</span> · <span class="kbd">arp -a</span> · <span class="kbd">tracert IP</span> · <span class="kbd">pathping IP</span> · <span class="kbd">netsh trace start capture=yes</span></li>
+        <li><strong>Linux/macOS :</strong> <span class="kbd">ip a; ip r</span> · <span class="kbd">ping IP</span> · <span class="kbd">ip neigh</span> · <span class="kbd">traceroute IP</span> · <span class="kbd">tcpdump -i eth0 host IP</span></li>
+        <li><strong>Découverte :</strong> <span class="kbd">nmap -sn 192.168.x.0/24</span> · scan ARP · LLDP côté switch · Advanced IP Scanner</li>
+        <li><strong>MTU :</strong> <span class="kbd">ping -f -l 1400 IP</span> (Win) · <span class="kbd">ping -M do -s 1400 IP</span> (Linux)</li>
+        <li><strong>Duplex :</strong> <span class="kbd">show interface status</span> (Cisco) · <span class="kbd">ethtool eth0</span> (Linux)</li>
+        <li><strong>Débit :</strong> <span class="kbd">iperf3 -c IP</span> (si iperf dispo sur les deux bouts)</li>
+        <li><strong>ONVIF :</strong> ONVIF Device Manager (Windows) · <span class="kbd">onvif-probe</span></li>
+      </ul>
+    </details>
   </div>
+
   <div class="card" id="step-materiel">
-    <div class="card-head"><div class="card-icon">📷</div><h2>Caméra / Matériel <span class="status-dot" id="status-materiel"></span></h2></div>
-    <p class="card-desc">Firmware, date/heure NTP, flux vidéo, qualité d'image jour/nuit, IR.</p>
-    <button class="btn-diag" id="startHwDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic</button>
+    <div class="card-head"><div class="card-icon">🔧</div><h2>Matériel — tests & logs <span class="status-dot" id="status-materiel"></span></h2></div>
+    <p class="card-desc">PoE, logs caméra, firmware, NTP, ONVIF, multi-stream, température capteur, capture réseau.</p>
+    <button class="btn-diag" id="startHwDiag"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Lancer le diagnostic avancé</button>
+    <details>
+      <summary>Outils et actions</summary>
+      <ul>
+        <li><strong>Logs :</strong> export syslog/diag via WebUI ou outil fabricant ; relever erreurs réseau/RTSP/NTP</li>
+        <li><strong>PoE :</strong> <span class="kbd">show power inline</span> · TDR : <span class="kbd">test cable-diagnostics tdr</span></li>
+        <li><strong>Flux :</strong> VLC <span class="kbd">rtsp://IP:554/stream</span> · charge CPU/temp si visible · ping continu <span class="kbd">ping -t</span></li>
+        <li><strong>ONVIF :</strong> ONVIF Device Manager pour vérifier profils S/T/G</li>
+        <li><strong>Isolation :</strong> remplacement croisé — injecteur / câble court / port différent</li>
+      </ul>
+    </details>
   </div>
 </main>
 <nav class="sticky-bar">
-  <button class="nav-pill active" data-go="#step-alim">⚡ Alim</button>
-  <button class="nav-pill" data-go="#step-reseau">🌐 Réseau</button>
-  <button class="nav-pill" data-go="#step-materiel">📷 Caméra</button>
+  <button class="nav-pill active" data-go="#step-reseau">🔬 Réseau</button>
+  <button class="nav-pill" data-go="#step-materiel">🔧 Matériel</button>
 </nav>
 <div aria-live="polite" id="wizard-overlay">
   <div id="wizard-card">
     <button class="wz-close" id="wizard-close" title="Fermer">✕</button>
-    <h3 id="wizard-title">Diagnostic guidé</h3>
+    <h3 id="wizard-title">Diagnostic avancé</h3>
     <div class="wz-step-indicator" id="wizard-step"></div>
     <div class="wz-progress"><div class="wz-progress-bar" id="wizard-progress"></div></div>
     <div class="wz-body" id="wizard-body">
@@ -198,114 +227,122 @@ function setStatus(k,s){const d=qs(`#status-${k}`);if(!d)return;d.className='sta
 qsa('[data-go]').forEach(b=>{b.addEventListener('click',()=>{qsa('.nav-pill').forEach(p=>p.classList.remove('active'));b.classList.add('active');const t=qs(b.getAttribute('data-go'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
 
 const flows={
-  alim_main:{_t:5,start:{title:'Alimentation',text:'Quel type d\'alimentation ?',answers:[
-    {text:'Secteur (230 V) / Transfo',flow:'alim_230',next:'start'},
-    {text:'PoE (Switch / Injecteur)',flow:'alim_poe',next:'start'},
-    {text:'Solaire / Batterie',flow:'alim_solar',next:'start'},
-    {text:'Je ne sais pas',conclusion:{status:'WARN',message:'Identifier le type d\'alim avant de continuer. Vérifier l\'étiquette caméra (12 VDC / 24 VAC / PoE 48 V).'}}
-  ]}},
-  alim_230:{_t:5,start:{text:'Disjoncteur / fusible enclenché et stable ?',answers:[
-    {text:'Oui',next:'parafoudre'},
-    {text:'Non / se déclenche',conclusion:{status:'KO',message:'Réarmer. S\'il retombe → court-circuit ou surcharge. Vérifier parafoudre et câblage.'}}
-  ]},parafoudre:{text:'Parafoudre / parasurtenseur en amont ? Voyant OK ?',tip:'Un parafoudre grillé coupe l\'alim silencieusement.',answers:[
-    {text:'OK ou pas de parafoudre',next:'transfo_led'},
-    {text:'Parafoudre grillé',conclusion:{status:'KO',message:'Remplacer le parafoudre et vérifier le transfo en aval.'}}
-  ]},transfo_led:{text:'Transfo 12/24 V : LED allumée, boîtier tiède ?',answers:[
-    {text:'Oui',next:'mesure_sortie'},
-    {text:'Non (froid, éteint)',conclusion:{status:'KO',message:'Transfo HS ou non alimenté en amont.'}}
-  ]},mesure_sortie:{text:'Mesure sortie transfo conforme (12/24 V, polarité) ?',tip:'Multimètre sur la sortie. Tolérance ±10 %.',answers:[
-    {text:'Oui',next:'mesure_cam'},
-    {text:'Non',conclusion:{status:'KO',message:'Sortie hors spécifications → remplacer le transfo.'}}
-  ]},mesure_cam:{text:'Tension aux bornes de la caméra toujours OK ?',tip:'Mesurer sur le connecteur caméra. Chute > 1 V = problème.',answers:[
-    {text:'Oui',conclusion:{status:'OK',message:'Alimentation OK jusqu\'à la caméra.'}},
-    {text:'Non (chute)',conclusion:{status:'KO',message:'Chute de tension → câble trop long, section insuffisante, ou connectique oxydée.'}}
-  ]}},
-  alim_poe:{_t:4,start:{text:'LED LINK & PoE allumées sur le port ?',answers:[
-    {text:'Oui, fixes',next:'poe_classe'},
-    {text:'Non / clignote',next:'essai_cable_court'}
-  ]},poe_classe:{text:'Budget PoE du switch suffisant ? Classe PoE compatible ?',tip:'La caméra demande quelle classe (ex: 12.95 W class 3) vs budget restant du switch.',answers:[
-    {text:'Oui, budget OK',conclusion:{status:'OK',message:'Injection PoE OK. Passer au réseau.'}},
-    {text:'Budget dépassé / classe trop haute',conclusion:{status:'KO',message:'Budget PoE saturé → répartir les ports ou injecteur dédié.'}}
-  ]},essai_cable_court:{text:'Essai câble court (1-2 m) et/ou autre port ?',answers:[
-    {text:'OK avec câble court',conclusion:{status:'WARN',message:'Câble principal en cause : longueur, sertissage, ou paires endommagées.'}},
-    {text:'Toujours KO',next:'poe_injecteur'}
-  ]},poe_injecteur:{text:'Test avec un injecteur PoE externe indépendant ?',tip:'Isoler le switch : injecteur PoE séparé + câble court.',answers:[
-    {text:'OK avec injecteur',conclusion:{status:'KO',message:'Port switch défectueux ou PoE désactivé. Vérifier config switch.'}},
-    {text:'Toujours KO',conclusion:{status:'KO',message:'Probable défaut caméra (contrôleur PoE HS) → tester autre caméra ou RMA.'}}
-  ]}},
-  alim_solar:{_t:4,start:{text:'Batterie ≥ 12.2 V (12 V) / ≥ 24.4 V (24 V) ?',tip:'Mesurer à vide. < 11.5 V = décharge profonde.',answers:[
-    {text:'Oui',next:'panneaux'},
-    {text:'Non',conclusion:{status:'KO',message:'Batterie faible ou LVD activé. Recharger ou remplacer.'}}
-  ]},panneaux:{text:'Panneaux plein soleil : 18–22 V (12 V) / 36–44 V (24 V) ?',tip:'Mesurer en circuit ouvert.',answers:[
-    {text:'Oui',next:'regul'},
-    {text:'Non',conclusion:{status:'KO',message:'Panneaux sales / ombrage / fusible / diode anti-retour HS.'}}
-  ]},regul:{text:'Régulateur OK (voyants charge, sortie active) ?',answers:[
-    {text:'Oui',next:'conso'},
-    {text:'Non',conclusion:{status:'KO',message:'Régulateur défectueux → remplacer.'}}
-  ]},conso:{text:'Consommation caméra compatible avec la production solaire ?',tip:'Production journalière doit couvrir la conso 24h (incluant IR de nuit).',answers:[
-    {text:'Oui',conclusion:{status:'OK',message:'Chaîne solaire OK.'}},
-    {text:'Sous-dimensionné',conclusion:{status:'WARN',message:'Ajouter panneau ou réduire conso (couper IR, baisser FPS la nuit).'}}
-  ]}},
+  net_adv:{_t:11,
+    start:{title:'Réseau (avancé)',text:'Couche physique : LEDs de lien ?',answers:[
+      {text:'Lien actif',next:'ipcfg'},
+      {text:'Pas de lien',conclusion:{status:'KO',message:'Câble / sertissage / port HS. Essayer câble court + autre port.'}}
+    ]},
+    ipcfg:{text:'IP / Masque / Passerelle du PC de test corrects ?',tip:'ipconfig /all (Win) — ip a; ip r (Linux)',answers:[
+      {text:'Oui',next:'pingt'},
+      {text:'Non',conclusion:{status:'KO',message:'Corriger l\'adressage (DHCP statique ? VLAN de la prise ?).'}}
+    ]},
+    pingt:{text:'Ping continu vers la caméra — stabilité ?',tip:'ping -t IP (Win) — ping IP (Linux)',answers:[
+      {text:'Stable (0 % perte)',next:'gw'},
+      {text:'Perte / latence instable',next:'tdr'}
+    ]},
+    tdr:{text:'Test câble (TDR) ou essai câble court ?',tip:'test cable-diagnostics tdr (switch) — ou câble court + injecteur',answers:[
+      {text:'OK avec câble court',next:'duplex'},
+      {text:'Toujours instable',next:'duplex'}
+    ]},
+    duplex:{text:'Duplex / auto-négociation ? Erreurs CRC sur le port ?',tip:'show interface status (Cisco) — ethtool eth0 (Linux). Forcer 100M/Full si nécessaire.',answers:[
+      {text:'Auto OK, pas d\'erreurs',next:'arp_conflict'},
+      {text:'Mismatch ou erreurs CRC',conclusion:{status:'WARN',message:'Mismatch duplex détecté. Forcer la vitesse/duplex des deux côtés (switch + caméra).'}}
+    ]},
+    arp_conflict:{text:'Conflit d\'IP ? (ping l\'IP caméra débranchée)',tip:'Débrancher la caméra → ping. Si réponse → conflit.',answers:[
+      {text:'Oui, conflit',conclusion:{status:'KO',message:'Changer l\'IP. Mettre réservation DHCP si nécessaire.'}},
+      {text:'Non',next:'vlan_tag'}
+    ]},
+    vlan_tag:{text:'VLAN tagging correct ? Port access ou trunk ?',tip:'show vlan brief — show running-config interface. Le port doit être dans le bon VLAN.',answers:[
+      {text:'Correct',next:'path'},
+      {text:'Mauvais VLAN / trunk mal configuré',conclusion:{status:'KO',message:'Reconfigurer le port switch : VLAN access correct ou trunk + native VLAN.'}},
+      {text:'Pas de VLAN',next:'path'}
+    ]},
+    gw:{text:'Ping de la passerelle OK ?',answers:[
+      {text:'Oui',next:'path'},
+      {text:'Non',conclusion:{status:'KO',message:'Routage local défaillant. Vérifier port / câble vers le routeur.'}}
+    ]},
+    path:{text:'Traceroute vers le VMS/serveur — chemin L3 ?',tip:'tracert (Win) / traceroute (Linux) — pathping pour perte par saut',answers:[
+      {text:'Chemin OK',next:'mtu'},
+      {text:'Bloqué / timeout',conclusion:{status:'KO',message:'Filtrage ou routage. Vérifier firewall / NAT / VPN / ACL.'}}
+    ]},
+    mtu:{text:'MTU / fragmentation correcte ?',tip:'ping -f -l 1400 IP (Win) — ping -M do -s 1400 IP (Linux)',answers:[
+      {text:'OK',next:'dns'},
+      {text:'Fragmentation',conclusion:{status:'WARN',message:'Ajuster MTU (VPN/4G = souvent 1400). Ou désactiver DF pour les tests.'}}
+    ]},
+    dns:{text:'Résolution DNS fonctionnelle (si la caméra/VMS utilise des noms) ?',tip:'nslookup hostname — dig hostname. Vérifier le DNS configuré sur la caméra.',answers:[
+      {text:'OK / pas de DNS utilisé',next:'throughput'},
+      {text:'Échec résolution',conclusion:{status:'WARN',message:'Corriger les serveurs DNS sur la caméra ou utiliser des IP fixes.'}}
+    ]},
+    throughput:{text:'Débit suffisant (test iperf si possible) ?',tip:'iperf3 -c IP -t 30. Comparer au besoin du flux (ex: 8 Mbps pour du H.265 FHD).',answers:[
+      {text:'Débit OK',next:'discover'},
+      {text:'Débit faible / micro-coupures',conclusion:{status:'WARN',message:'Goulot d\'étranglement. Vérifier : duplex, câble, switch (backplane saturé), QoS.'}},
+      {text:'Pas d\'iperf dispo',next:'discover'}
+    ]},
+    discover:{text:'Localiser les équipements sur le LAN ?',tip:'nmap -sn 192.168.x.0/24 — scan ARP — LLDP',answers:[
+      {text:'Trouvé',conclusion:{status:'OK',message:'Adresse / MAC identifiés. Diagnostic réseau terminé.'}},
+      {text:'Non trouvé',conclusion:{status:'KO',message:'Hors sous-réseau / VLAN ou éteint. Vérifier VLAN / ACL / alimentation.'}}
+    ]}
+  },
 
-  net:{_t:7,start:{title:'Réseau',text:'LED de lien allumée sur le port switch ?',answers:[
-    {text:'Oui',next:'same_subnet'},
-    {text:'Non',conclusion:{status:'KO',message:'Pas de lien physique. Vérifier câble / port / alimentation caméra.'}}
-  ]},same_subnet:{text:'Le PC de test est sur le même sous-réseau que la caméra ?',tip:'Ex: caméra 192.168.1.50/24 → PC en 192.168.1.x/24.',answers:[
-    {text:'Oui',next:'ping_cam'},
-    {text:'Non / pas sûr',conclusion:{status:'WARN',message:'Mettre le PC dans le même sous-réseau (IP fixe temporaire) puis retenter.'}}
-  ]},ping_cam:{text:'La caméra répond au ping ?',answers:[
-    {text:'Oui',next:'ping_gw'},
-    {text:'Non',next:'vlan_check'}
-  ]},vlan_check:{text:'La prise réseau est sur le bon VLAN ?',tip:'Vérifier côté switch : port dans le VLAN caméra.',answers:[
-    {text:'Oui / pas de VLAN',next:'conflit'},
-    {text:'Mauvais VLAN',conclusion:{status:'KO',message:'Port dans le mauvais VLAN. Reconfigurer le port switch.'}},
-    {text:'Je ne sais pas',next:'conflit'}
-  ]},conflit:{text:'Débrancher la caméra, ping son IP. Réponse ?',tip:'Si une autre machine répond → conflit d\'IP.',answers:[
-    {text:'Oui → conflit',conclusion:{status:'KO',message:'Conflit d\'IP confirmé. Changer l\'IP ou identifier le doublon.'}},
-    {text:'Non (timeout)',conclusion:{status:'WARN',message:'Pas de conflit. Vérifier l\'IP de la caméra (reset ?) ou accès Web direct.'}}
-  ]},ping_gw:{text:'Ping de la passerelle OK ?',answers:[
-    {text:'Oui',next:'ping_vms'},
-    {text:'Non',conclusion:{status:'KO',message:'Pas de connectivité vers la passerelle.'}}
-  ]},ping_vms:{text:'Ping vers le VMS / serveur OK ?',tip:'Depuis le PC dans le même réseau.',answers:[
-    {text:'Oui',conclusion:{status:'OK',message:'Connectivité réseau OK jusqu\'au VMS.'}},
-    {text:'Non',conclusion:{status:'KO',message:'Routage inter-VLAN ou firewall bloque le trafic vers le VMS.'}}
-  ]}},
-
-  hw:{_t:7,start:{title:'Caméra / Matériel',text:'Accès Web (http://IP) possible ?',answers:[
-    {text:'Oui',next:'fw_check'},
-    {text:'Non',next:'reboot'}
-  ]},reboot:{text:'Reboot électrique tenté (couper 30 sec) ?',answers:[
-    {text:'Oui, toujours KO',next:'test_local'},
-    {text:'OK après reboot',conclusion:{status:'OK',message:'Plantage ponctuel. Si récurrent → vérifier firmware et alim.'}}
-  ]},test_local:{text:'Essai en banc local (câble court + switch test) ?',answers:[
-    {text:'OK en local',conclusion:{status:'WARN',message:'Caméra OK → infra site en cause (câble, port, VLAN, alim).'}},
-    {text:'Toujours KO',next:'reset'}
-  ]},reset:{text:'Reset usine (bouton 10-15 sec) ?',tip:'Après reset : IP par défaut constructeur, identifiants usine.',answers:[
-    {text:'Oui, toujours KO',conclusion:{status:'KO',message:'Panne matérielle probable → RMA / remplacement.'}},
-    {text:'Pas encore',conclusion:{status:'WARN',message:'Effectuer reset usine puis reconfigurer : IP, utilisateur, flux.'}}
-  ]},fw_check:{text:'Firmware à jour (version stable connue) ?',tip:'Comparer dans l\'interface Web avec le site constructeur.',answers:[
-    {text:'Oui',next:'ntp_check'},
-    {text:'Non / ancienne',conclusion:{status:'WARN',message:'Mettre à jour le firmware (version stable). Bugs souvent corrigés.'}},
-    {text:'Je ne sais pas',next:'ntp_check'}
-  ]},ntp_check:{text:'Date et heure correctes (NTP synchronisé) ?',tip:'Un décalage empêche l\'enregistrement horodaté sur le VMS.',answers:[
-    {text:'Oui',next:'flux'},
-    {text:'Non / décalée',conclusion:{status:'WARN',message:'Configurer NTP (pool.ntp.org ou serveur local). Vérifier fuseau horaire.'}}
-  ]},flux:{text:'Flux vidéo visible dans l\'interface Web ?',answers:[
-    {text:'Oui',next:'image_quality'},
-    {text:'Écran noir',conclusion:{status:'WARN',message:'Service RTSP/vidéo HS. Reboot, sinon reset firmware ou RMA.'}}
-  ]},image_quality:{text:'Qualité d\'image correcte (jour ET nuit) ?',tip:'Vérifier : focus, IR en auto, pas de reflet IR, pas de masquage.',answers:[
-    {text:'Oui',conclusion:{status:'OK',message:'Caméra opérationnelle. Vérifier intégration VMS si besoin.'}},
-    {text:'Floue / surexposée',conclusion:{status:'WARN',message:'Régler focus, exposition, WDR, gain. Si IR : vérifier surfaces réfléchissantes.'}},
-    {text:'IR ne fonctionne pas',conclusion:{status:'WARN',message:'Vérifier mode jour/nuit auto, seuil IR, état physique des LEDs IR.'}}
-  ]}}
+  hw_adv:{_t:10,
+    start:{title:'Matériel (avancé)',text:'Accès Web ou RTSP possible ?',answers:[
+      {text:'Oui',next:'fw_ver'},
+      {text:'Non',next:'poe_power'}
+    ]},
+    poe_power:{text:'PoE : le port fournit la puissance nécessaire ?',tip:'show power inline — vérifier classe et budget restant',answers:[
+      {text:'OK',next:'local_test'},
+      {text:'Insuffisant',conclusion:{status:'KO',message:'Budget PoE saturé ou classe insuffisante → injecteur dédié ou switch PoE+.'}}
+    ]},
+    local_test:{text:'Test en banc local (câble court + injecteur test) ?',answers:[
+      {text:'OK en local',conclusion:{status:'WARN',message:'Infra site en cause (câble / port / VLAN).'}},
+      {text:'Toujours KO',next:'reset_fw'}
+    ]},
+    reset_fw:{text:'Reset usine + firmware stable appliqué ?',answers:[
+      {text:'Oui, toujours KO',conclusion:{status:'KO',message:'Défaut matériel → RMA / remplacement.'}},
+      {text:'Pas encore',conclusion:{status:'WARN',message:'Reset propre puis reconfig minimale (IP / user / flux).'}}
+    ]},
+    fw_ver:{text:'Version firmware ? À jour ou version stable connue ?',tip:'Comparer WebUI vs site constructeur. Attention aux bêta.',answers:[
+      {text:'À jour',next:'ntp'},
+      {text:'Ancienne / inconnue',conclusion:{status:'WARN',message:'Mettre à jour vers le firmware stable. Planifier un reboot après MàJ.'}},
+    ]},
+    ntp:{text:'Date / heure correctes (NTP synchronisé) ?',tip:'Vérifier dans l\'interface : NTP activé, serveur joignable, fuseau horaire.',answers:[
+      {text:'Oui',next:'onvif'},
+      {text:'Décalée',conclusion:{status:'WARN',message:'Configurer NTP + fuseau horaire. Décalage = horodatage faux sur le VMS.'}}
+    ]},
+    onvif:{text:'ONVIF détectable (profil S/T) ?',tip:'ONVIF Device Manager ou onvif-probe. Certaines caméras désactivent ONVIF par défaut.',answers:[
+      {text:'Oui / pas besoin',next:'logs'},
+      {text:'Non détecté',conclusion:{status:'WARN',message:'Activer ONVIF dans la WebUI. Vérifier : port 80/8080, utilisateur ONVIF créé, profil activé.'}}
+    ]},
+    logs:{text:'Logs de la caméra récupérés ?',tip:'Export syslog/diagnostic via WebUI — relever erreurs réseau/RTSP/NTP/watchdog',answers:[
+      {text:'Oui',next:'ping_view'},
+      {text:'Impossible',next:'sniff'}
+    ]},
+    ping_view:{text:'Pendant visualisation du flux : perte sur ping continu ?',tip:'ping -t en parallèle du flux vidéo pour corréler les décrochages',answers:[
+      {text:'Pas de perte',next:'multistream'},
+      {text:'Pertes pendant le flux',next:'sniff'}
+    ]},
+    multistream:{text:'Multi-stream : flux principal + sous-flux fonctionnent ?',tip:'Tester main stream (FHD/4K) ET sub stream (CIF/VGA) séparément dans VLC.',answers:[
+      {text:'Les deux OK',next:'temp_check'},
+      {text:'Un seul fonctionne',conclusion:{status:'WARN',message:'Vérifier la config des profils vidéo (codec, résolution, bitrate). Réduire si surcharge.'}},
+      {text:'Aucun ne fonctionne',conclusion:{status:'KO',message:'Service RTSP HS. Reboot + vérifier firmware. Si persistant → reset ou RMA.'}}
+    ]},
+    temp_check:{text:'Température capteur / CPU dans les limites ?',tip:'Si visible dans la WebUI : CPU < 80°C, capteur dans la plage constructeur.',answers:[
+      {text:'OK',conclusion:{status:'OK',message:'Matériel stable et fonctionnel. Vérifier l\'intégration VMS si le problème persiste.'}},
+      {text:'Surchauffe / pas visible',conclusion:{status:'WARN',message:'Surchauffe possible : vérifier ventilation du boîtier, exposition directe au soleil, environnement.'}}
+    ]},
+    sniff:{text:'Capture réseau (port mirroring ou PC de test) ?',tip:'tcpdump / Wireshark — vérifier ARP storms, RTSP TCP resets, retransmissions',answers:[
+      {text:'Anomalies visibles',conclusion:{status:'WARN',message:'Analyser : segments perdus, RST, retransmissions, ARP storms. Vérifier duplex / MTU / QoS.'}},
+      {text:'Rien d\'anormal',conclusion:{status:'OK',message:'Réseau / matériel OK. Chercher côté VMS (licence, config, charge serveur).'}}
+    ]}
+  }
 };
 
 const overlay=qs('#wizard-overlay'),wTitle=qs('#wizard-title'),wStep=qs('#wizard-step'),
   wText=qs('#wizard-text'),wAnswers=qs('#wizard-answers'),wTipC=qs('#wizard-tip-container'),
   wBody=qs('#wizard-body'),wProgress=qs('#wizard-progress');
-let curFK=null,curF=null,stepN=0,totS=5;
+let curFK=null,curF=null,stepN=0,totS=8;
 
-function openWizard(fk){curFK=fk;curF=flows[fk];if(!curF)return;stepN=0;totS=curF._t||5;
+function openWizard(fk){curFK=fk;curF=flows[fk];if(!curF)return;stepN=0;totS=curF._t||8;
   overlay.style.display='flex';
   overlay.animate([{opacity:0},{opacity:1}],{duration:200,easing:'ease'});
   qs('#wizard-card').animate([{opacity:0,transform:'translateY(16px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:250,easing:'ease'});
@@ -321,14 +358,14 @@ function render(step){const s=curF[step];if(!s)return;stepN++;
   wTipC.innerHTML=s.tip?`<div class="wizard-tip">💡 ${s.tip}</div>`:'';
   (s.answers||[]).forEach(a=>{const b=document.createElement('button');b.textContent=a.text;
     b.onclick=()=>{
-      if(a.flow){curFK=a.flow;curF=flows[a.flow];totS=curF._t||5;}
+      if(a.flow){curFK=a.flow;curF=flows[a.flow];totS=curF._t||8;}
       if(a.conclusion)animateStep(()=>conclude(a.conclusion));
       else if(a.next)animateStep(()=>render(a.next));
     };wAnswers.appendChild(b);});
   if(s.conclusion)conclude(s.conclusion);}
 
 function conclude(c){
-  const map={alim:'alim',alim_main:'alim',alim_230:'alim',alim_poe:'alim',alim_solar:'alim',net:'reseau',hw:'materiel'};
+  const map={net_adv:'reseau',hw_adv:'materiel'};
   const k=map[curFK]||curFK,st=(c.status||'').toLowerCase();setStatus(k,st);
   wProgress.style.width='100%';
   const lab={ok:'OK',ko:'ÉCHEC',warn:'ATTENTION'};
@@ -346,9 +383,8 @@ function closeWizard(){overlay.animate([{opacity:1},{opacity:0}],{duration:150,e
 qs('#wizard-close').addEventListener('click',closeWizard);
 overlay.addEventListener('click',e=>{if(e.target===overlay)closeWizard()});
 document.addEventListener('click',e=>{
-  if(e.target.id==='startAlimDiag'||e.target.closest('#startAlimDiag'))openWizard('alim_main');
-  if(e.target.id==='startNetDiag'||e.target.closest('#startNetDiag'))openWizard('net');
-  if(e.target.id==='startHwDiag'||e.target.closest('#startHwDiag'))openWizard('hw');
+  if(e.target.id==='startNetDiag'||e.target.closest('#startNetDiag'))openWizard('net_adv');
+  if(e.target.id==='startHwDiag'||e.target.closest('#startHwDiag'))openWizard('hw_adv');
 });
 </script>
 </body>
